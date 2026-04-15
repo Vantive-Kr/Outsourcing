@@ -170,6 +170,54 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .bnav-item:active .bnav-svg{transform:scale(0.88);}
 .tab-panel{display:none;}.tab-panel.on{display:block;}
 
+
+/* ── Month filter chips ── */
+.mo-filter-row{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.mo-filter-row::-webkit-scrollbar{display:none;}
+.mo-chip{flex-shrink:0;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:700;
+  cursor:pointer;user-select:none;white-space:nowrap;background:rgba(0,0,0,0.05);color:var(--text2);
+  border:1.5px solid transparent;transition:all .15s;font-family:inherit;}
+.mo-chip.on{background:var(--pine);color:var(--cream);border-color:var(--pine);}
+.mo-chip:active{transform:scale(0.95);}
+
+/* ── Paging ── */
+.paging{display:flex;align-items:center;justify-content:center;gap:5px;
+  padding:10px 14px 6px;}
+.pg-btn{min-width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border);
+  background:var(--white);color:var(--text2);font-size:13px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-family:inherit;transition:all .15s;}
+.pg-btn.on{background:var(--plum);color:var(--cream);border-color:var(--plum);}
+.pg-btn:disabled{opacity:.35;cursor:default;}
+.pg-btn:not(.on):not(:disabled):hover{background:var(--plum-light);border-color:var(--border-p);}
+.pg-info{font-size:12px;color:var(--text3);padding:0 6px;}
+.pg-dots{font-size:13px;color:var(--text3);padding:0 2px;}
+
+/* ── Stats month accordion ── */
+.mo-acc{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px;background:var(--white);}
+.mo-acc-head{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;cursor:pointer;user-select:none;transition:background .12s;}
+.mo-acc-head:hover{background:var(--plum-light);}
+.mo-acc-ym{font-size:14px;font-weight:800;color:var(--plum);font-family:"Arial Black",Arial,sans-serif;letter-spacing:.5px;}
+.mo-acc-meta{display:flex;align-items:center;gap:8px;}
+.mo-acc-cnt{font-size:12px;color:var(--text3);}
+.mo-acc-chev{font-size:14px;color:var(--text3);transition:transform .25s;}
+.mo-acc-chev.open{transform:rotate(180deg);}
+.mo-acc-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);}
+.mo-acc-body.open{max-height:800px;}
+.mo-acc-in{padding:12px 16px 16px;border-top:1px solid var(--border);background:rgba(255,250,235,0.4);}
+.mo-sub-hdr{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1.4px;
+  text-transform:uppercase;margin:10px 0 7px;font-family:"Arial Black",Arial,sans-serif;}
+.mo-sub-hdr:first-child{margin-top:0;}
+.mo-stat-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.mo-stat-row:last-child{margin-bottom:0;}
+.mo-stat-name{font-size:12px;font-weight:600;color:var(--text);min-width:70px;}
+.mo-bar-wrap{flex:1;height:18px;background:rgba(0,0,0,0.04);border-radius:3px;overflow:hidden;}
+.mo-bar{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px;transition:width .5s ease;}
+.mo-bar span{font-size:10px;font-weight:700;color:rgba(255,255,255,0.9);}
+.mo-stat-cnt{font-size:12px;font-weight:800;min-width:28px;text-align:right;font-family:monospace;}
+.mo-stat-pct{font-size:11px;color:var(--text3);min-width:38px;text-align:right;}
+
 mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;padding:0 1px;}
 </style>
 </head>
@@ -205,6 +253,16 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
 
 <!-- Filters -->
 <div class="filt" id="filtEl">
+  <div class="frow" id="yrFrow">
+    <div class="flbl">년도</div>
+    <div class="mo-filter-row" id="yrRow">
+      <button class="mo-chip on" data-v="all">전체</button>
+    </div>
+  </div>
+  <div class="frow" id="moFrow" style="display:none;">
+    <div class="flbl">월</div>
+    <div class="mo-filter-row" id="moRow"></div>
+  </div>
   <div class="frow">
     <div class="flbl">접수자</div>
     <div class="seg-row" id="accRow">
@@ -232,6 +290,7 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
 <!-- Search Tab -->
 <div class="tab-panel on" id="searchPanel">
   <div class="cards" id="cardsEl"></div>
+  <div class="paging" id="pagingEl" style="display:none;"></div>
   <div class="empty" id="emptyEl">
     <div class="empty-ico">🔍</div>
     <h3>검색 결과 없음</h3>
@@ -640,7 +699,7 @@ var WO=[
 {dt:"2026-04-14 11:23:48",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"}
 ];
 
-var SQ='', AF='all', TF='all', OS={};
+var SQ='', AF='all', TF='all', MF='all', OS={}, CUR_PAGE=1, PAGE_SIZE=20, FILTERED_LIST=[];
 
 document.getElementById('totalBadge').textContent = WO.length + ' WOs';
 
@@ -680,34 +739,43 @@ function fmtTime(dt){
   return dt.substring(11,16);
 }
 
-function render(list){
+function renderPage(){
   var ws = SQ ? SQ.trim().toLowerCase().split(/\s+/) : [];
+  var list = FILTERED_LIST;
   var cardsEl = document.getElementById('cardsEl');
   var emptyEl = document.getElementById('emptyEl');
   var sbar = document.getElementById('sbarEl');
+  var pagingEl = document.getElementById('pagingEl');
 
   if(!list.length){
-    cardsEl.innerHTML='';cardsEl.style.display='none';emptyEl.style.display='block';
+    cardsEl.innerHTML='';cardsEl.style.display='none';
+    emptyEl.style.display='block';pagingEl.style.display='none';
     sbar.innerHTML='검색 결과 없음';
     return;
   }
   cardsEl.style.display='';emptyEl.style.display='none';
 
-  if(SQ||AF!=='all'||TF!=='all'){
-    sbar.innerHTML='<b>'+list.length+'</b>건 검색됨 (전체 '+WO.length+'건)';
-  } else {
-    sbar.innerHTML='전체 <b>'+WO.length+'</b>건';
-  }
+  var total = list.length;
+  var totalPages = Math.ceil(total / PAGE_SIZE);
+  if(CUR_PAGE > totalPages) CUR_PAGE = totalPages;
+  var start = (CUR_PAGE-1)*PAGE_SIZE;
+  var pageItems = list.slice(start, start+PAGE_SIZE);
 
-  cardsEl.innerHTML = list.map(function(w, idx){
-    var key = 'w'+idx;
+  var filterActive = SQ||AF!=='all'||TF!=='all'||MF!=='all';
+  sbar.innerHTML = filterActive
+    ? '<b>'+total+'</b>건 검색됨 (전체 '+WO.length+'건) · '+CUR_PAGE+'/'+totalPages+'페이지'
+    : '전체 <b>'+WO.length+'</b>건 · '+CUR_PAGE+'/'+totalPages+'페이지';
+
+  cardsEl.innerHTML = pageItems.map(function(w, pi){
+    var realIdx = start + pi;
+    var key = 'w'+realIdx;
     var isOpen = OS[key];
     var hasSerial = w.sn && w.sn.toLowerCase()!=='n/a';
     var hasFault  = w.fault && w.fault.toLowerCase()!=='n/a';
 
     return '<div class="card">'+
       '<div class="chead" onclick="toggle(\''+key+'\')">'+
-        '<span class="wo-num">'+esc(String(idx+1).padStart(3,'0'))+'</span>'+
+        '<span class="wo-num">'+esc(String(realIdx+1).padStart(3,'0'))+'</span>'+
         '<div class="cbody">'+
           '<div class="ctitle">'+hi(w.acct||'(거래처 미입력)',ws)+' <span style="font-weight:400;color:var(--text3)">·</span> '+hi(w.dev||'—',ws)+'</div>'+
           '<div class="cmeta">'+
@@ -734,7 +802,41 @@ function render(list){
       '</div>'+
     '</div>';
   }).join('');
+
+  // Paging controls
+  if(totalPages <= 1){ pagingEl.style.display='none'; return; }
+  pagingEl.style.display='flex';
+  var pg = '';
+  pg += '<button class="pg-btn" onclick="goPage('+(CUR_PAGE-1)+')" '+(CUR_PAGE<=1?'disabled':'')+'>‹</button>';
+  var pages = [];
+  if(totalPages <= 7){
+    for(var i=1;i<=totalPages;i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if(CUR_PAGE > 3) pages.push('…');
+    for(var i=Math.max(2,CUR_PAGE-1);i<=Math.min(totalPages-1,CUR_PAGE+1);i++) pages.push(i);
+    if(CUR_PAGE < totalPages-2) pages.push('…');
+    pages.push(totalPages);
+  }
+  pages.forEach(function(p){
+    if(p==='…'){ pg += '<span class="pg-dots">…</span>'; }
+    else { pg += '<button class="pg-btn'+(p===CUR_PAGE?' on':'')+'" onclick="goPage('+p+')">'+p+'</button>'; }
+  });
+  pg += '<button class="pg-btn" onclick="goPage('+(CUR_PAGE+1)+')" '+(CUR_PAGE>=totalPages?'disabled':'')+'>›</button>';
+  pagingEl.innerHTML = pg;
 }
+
+function goPage(p){
+  var totalPages = Math.ceil(FILTERED_LIST.length / PAGE_SIZE);
+  if(p<1||p>totalPages) return;
+  CUR_PAGE = p;
+  OS = {};
+  renderPage();
+  document.getElementById('cardsEl').closest('.tab-panel').scrollIntoView({behavior:'smooth',block:'start'});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function render(list){ renderPage(); }
 
 function toggle(key){
   var det=document.getElementById('det_'+key);
@@ -747,6 +849,8 @@ function toggle(key){
 function go(){
   var ws = SQ ? SQ.trim().toLowerCase().split(/\s+/) : [];
   var list = WO.slice().reverse(); // newest first
+  if(YF!=='all' && MF==='all') list=list.filter(function(w){ return w.dt.substring(0,4)===YF; });
+  if(MF!=='all') list=list.filter(function(w){ return w.dt.substring(0,7)===MF; });
   if(AF!=='all') list=list.filter(function(w){ return w.acc===AF; });
   if(TF!=='all'){
     list=list.filter(function(w){
@@ -764,11 +868,78 @@ function go(){
       return ws.every(function(ww){ return h.indexOf(ww)>=0; });
     });
   }
+  FILTERED_LIST = list;
+  CUR_PAGE = 1;
   OS={};
-  render(list);
+  renderPage();
 }
 
 // Filters
+// ── Year/Month 2-level filter ──────────────────────────────────────────────
+var YF = 'all'; // selected year
+(function initYearMonth(){
+  // Build year→months map from data
+  var ymMap = {}; // { '2025': ['2025-08','2025-09',...], '2026': [...] }
+  WO.forEach(function(w){
+    var ym = w.dt.substring(0,7);
+    var y  = ym.substring(0,4);
+    if(!ymMap[y]) ymMap[y] = {};
+    ymMap[y][ym] = 1;
+  });
+  var years = Object.keys(ymMap).sort().reverse();
+
+  // Populate year buttons
+  var yrRow = document.getElementById('yrRow');
+  years.forEach(function(y){
+    var b = document.createElement('button');
+    b.className = 'mo-chip';
+    b.setAttribute('data-v', y);
+    b.textContent = y + '년';
+    yrRow.appendChild(b);
+  });
+
+  // Year row click → show months for that year
+  yrRow.addEventListener('click', function(e){
+    var b = e.target; while(b && !b.classList.contains('mo-chip')) b = b.parentElement;
+    if(!b) return;
+    document.querySelectorAll('#yrRow .mo-chip').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    YF = b.getAttribute('data-v');
+    MF = 'all';
+
+    var moFrow = document.getElementById('moFrow');
+    var moRow  = document.getElementById('moRow');
+
+    if(YF === 'all'){
+      moFrow.style.display = 'none';
+      moRow.innerHTML = '';
+    } else {
+      // Build month chips for selected year
+      var mos = Object.keys(ymMap[YF]).sort().reverse();
+      moRow.innerHTML = '<button class="mo-chip on" data-v="all">전체</button>';
+      mos.forEach(function(ym){
+        var btn = document.createElement('button');
+        btn.className = 'mo-chip';
+        btn.setAttribute('data-v', ym);
+        btn.textContent = parseInt(ym.substring(5)) + '월';
+        moRow.appendChild(btn);
+      });
+      moFrow.style.display = '';
+    }
+    go();
+  });
+
+  // Month row click
+  document.getElementById('moRow').addEventListener('click', function(e){
+    var b = e.target; while(b && !b.classList.contains('mo-chip')) b = b.parentElement;
+    if(!b) return;
+    document.querySelectorAll('#moRow .mo-chip').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    MF = b.getAttribute('data-v');
+    go();
+  });
+})();
+
 document.getElementById('accRow').addEventListener('click',function(e){
   var b=e.target;while(b&&!b.classList.contains('seg'))b=b.parentElement;
   if(!b)return;
@@ -786,38 +957,66 @@ var sClr=document.getElementById('sClr');
 sInp.addEventListener('input',function(){SQ=sInp.value;sClr.className=SQ.length?'s-clr show':'s-clr';go();});
 sClr.addEventListener('click',function(){sInp.value='';SQ='';sClr.className='s-clr';go();});
 
-// Stats
+// Stats helpers
+var STAT_ACC_OPEN = {};
+function toggleStatAcc(ym){
+  var body = document.getElementById('mo-body-'+ym);
+  var chev = document.getElementById('mo-chev-'+ym);
+  if(!body) return;
+  var isOpen = body.classList.toggle('open');
+  STAT_ACC_OPEN[ym] = isOpen;
+  if(chev) chev.classList.toggle('open', isOpen);
+}
+
+function buildBars(dataMap, total, colors, nameWidth){
+  var keys = Object.keys(dataMap).sort(function(a,b){return dataMap[b]-dataMap[a];});
+  var maxVal = dataMap[keys[0]] || 1;
+  var html = '';
+  keys.forEach(function(k,i){
+    var cnt = dataMap[k];
+    var pct = (cnt/total*100).toFixed(1);
+    var barW = Math.round(cnt/maxVal*100);
+    var col = Array.isArray(colors) ? colors[i%colors.length] : (colors[k]||'#A1A1AA');
+    html += '<div class="mo-stat-row">'+
+      '<span class="mo-stat-name" style="min-width:'+(nameWidth||70)+'px;">'+esc(k)+'</span>'+
+      '<div class="mo-bar-wrap"><div class="mo-bar" style="width:'+barW+'%;background:'+col+'"><span>'+cnt+'</span></div></div>'+
+      '<span class="mo-stat-cnt" style="color:'+col+'">'+cnt+'</span>'+
+      '<span class="mo-stat-pct">'+pct+'%</span>'+
+    '</div>';
+  });
+  return html;
+}
+
 function renderStats(){
   var el=document.getElementById('statsPanelInner');
   var total=WO.length;
-  // Acceptor counts
-  var accMap={};
-  WO.forEach(function(w){ var a=w.acc||'미입력'; accMap[a]=(accMap[a]||0)+1; });
-  var accs=Object.keys(accMap).sort(function(a,b){return accMap[b]-accMap[a];});
   var colors=['#72256B','#105742','#6CA07A','#D4700A'];
+  var typColors={'Repair':'#C0392B','FCH':'#D4700A','PM/FCH':'#105742','PM':'#105742','Installation':'#6CA07A','기타':'#A1A1AA'};
 
-  // Type counts
-  var typMap={};
-  WO.forEach(function(w){
-    var t=(w.typ||'기타').toLowerCase();
-    var k = t==='repair'?'Repair':t.indexOf('fch')>=0?'FCH':t.indexOf('pm')>=0?'PM/FCH':t.indexOf('install')>=0?'Installation':'기타';
-    typMap[k]=(typMap[k]||0)+1;
-  });
+  function normType(t){
+    var tl=(t||'').toLowerCase();
+    return tl==='repair'?'Repair':tl.indexOf('fch')>=0?'FCH':tl.indexOf('pm')>=0?'PM':tl.indexOf('install')>=0?'Installation':'기타';
+  }
 
-  // Monthly breakdown
-  var moMap={};
+  var accMap={}, typMap={}, moData={};
   WO.forEach(function(w){
-    var ym=w.dt.substring(0,7);
-    if(!moMap[ym]) moMap[ym]={};
     var a=w.acc||'미입력';
-    moMap[ym][a]=(moMap[ym][a]||0)+1;
+    accMap[a]=(accMap[a]||0)+1;
+    var k=normType(w.typ);
+    typMap[k]=(typMap[k]||0)+1;
+    var ym=w.dt.substring(0,7);
+    if(!moData[ym]) moData[ym]={acc:{},typ:{},total:0};
+    moData[ym].acc[a]=(moData[ym].acc[a]||0)+1;
+    moData[ym].typ[k]=(moData[ym].typ[k]||0)+1;
+    moData[ym].total++;
   });
-  var months=Object.keys(moMap).sort();
+  var accs=Object.keys(accMap).sort(function(a,b){return accMap[b]-accMap[a];});
+  var months=Object.keys(moData).sort().reverse();
 
   var html = '';
 
-  // KPIs
-  var repairCnt=WO.filter(function(w){return (w.typ||'').toLowerCase()==='repair';}).length;
+  // ── KPI ──
+  var repairCnt=WO.filter(function(w){return normType(w.typ)==='Repair';}).length;
   var accts=new Set(WO.map(function(w){return w.acct;})).size;
   html += '<div class="kpi-row">'+
     '<div class="kpi"><div class="kpi-val">'+total+'</div><div class="kpi-lbl">Total WO</div></div>'+
@@ -825,67 +1024,50 @@ function renderStats(){
     '<div class="kpi"><div class="kpi-val" style="color:var(--pine)">'+accts+'</div><div class="kpi-lbl">거래처</div></div>'+
   '</div>';
 
-  // Acceptor bars
-  html += '<div class="stat-section"><div class="stat-hdr">접수자별 통계</div><div class="stat-card">';
-  accs.forEach(function(a,i){
-    var cnt=accMap[a];
-    var pct=(cnt/total*100).toFixed(1);
-    var barW=Math.round(cnt/accMap[accs[0]]*100);
-    var col=colors[i%colors.length];
-    html += '<div class="stat-row">'+
-      '<span class="stat-name">'+esc(a)+'</span>'+
-      '<div class="stat-bar-wrap"><div class="stat-bar" style="width:'+barW+'%;background:'+col+'"><span>'+cnt+'</span></div></div>'+
-      '<span class="stat-cnt" style="color:'+col+'">'+cnt+'</span>'+
-      '<span class="stat-pct">'+pct+'%</span>'+
-    '</div>';
-  });
+  // ── Overall: Acceptor bars ──
+  html += '<div class="stat-section"><div class="stat-hdr">전체 · 접수자별 통계</div><div class="stat-card">';
+  html += buildBars(accMap, total, colors, 70);
   html += '</div></div>';
 
-  // Type breakdown
-  html += '<div class="stat-section"><div class="stat-hdr">점검유형별 통계</div><div class="stat-card">';
-  var typKeys=Object.keys(typMap).sort(function(a,b){return typMap[b]-typMap[a];});
-  var typColors={'Repair':'#C0392B','FCH':'#D4700A','PM/FCH':'#105742','Installation':'#6CA07A','기타':'#A1A1AA'};
-  typKeys.forEach(function(k){
-    var cnt=typMap[k];
-    var pct=(cnt/total*100).toFixed(1);
-    var barW=Math.round(cnt/typMap[typKeys[0]]*100);
-    var col=typColors[k]||'#A1A1AA';
-    html += '<div class="stat-row">'+
-      '<span class="stat-name" style="min-width:90px;">'+esc(k)+'</span>'+
-      '<div class="stat-bar-wrap"><div class="stat-bar" style="width:'+barW+'%;background:'+col+'"><span>'+cnt+'</span></div></div>'+
-      '<span class="stat-cnt" style="color:'+col+'">'+cnt+'</span>'+
-      '<span class="stat-pct">'+pct+'%</span>'+
-    '</div>';
-  });
+  // ── Overall: Type bars ──
+  html += '<div class="stat-section"><div class="stat-hdr">전체 · 점검유형별 통계</div><div class="stat-card">';
+  html += buildBars(typMap, total, typColors, 90);
   html += '</div></div>';
 
-  // Monthly table
-  html += '<div class="stat-section"><div class="stat-hdr">월별 접수 현황</div>'+
-    '<div class="stat-card" style="padding:0;overflow:auto;">'+
-    '<table class="mo-table"><thead><tr>'+
-    '<th>월</th>';
-  accs.forEach(function(a){ html += '<th>'+esc(a)+'</th>'; });
-  html += '<th>합계</th></tr></thead><tbody>';
-  var monthTotal=new Array(accs.length).fill(0), grandTotal=0;
+  // ── Monthly accordion ──
+  html += '<div class="stat-section"><div class="stat-hdr">년월별 상세 통계</div>';
   months.forEach(function(ym){
-    var rowSum=0;
-    html += '<tr><td>'+esc(ym)+'</td>';
+    var mo = moData[ym];
+    var parts = ym.split('-');
+    var ymLabel = parts[0]+'년 '+parseInt(parts[1])+'월';
+    var isOpen = STAT_ACC_OPEN[ym] || false;
+    // mini badge row for acceptors
+    var accBadgesHtml = '';
     accs.forEach(function(a,i){
-      var n=moMap[ym][a]||0;
-      rowSum+=n; monthTotal[i]+=n;
-      var col=n>0?colors[i%colors.length]:'';
-      html += '<td>'+(n>0?'<span class="mo-cell" style="background:'+col+'22;color:'+col+';">'+n+'</span>':'<span style="color:var(--text3)">—</span>')+'</td>';
+      var n=mo.acc[a]||0;
+      if(n===0) return;
+      var col=colors[i%colors.length];
+      accBadgesHtml += '<span style="background:'+col+'22;color:'+col+';border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;margin-right:4px;">'+esc(a)+' '+n+'</span>';
     });
-    grandTotal+=rowSum;
-    html += '<td><b>'+rowSum+'</b></td></tr>';
+    html += '<div class="mo-acc">'+
+      '<div class="mo-acc-head" onclick="toggleStatAcc(\''+ym+'\')">'+
+        '<span class="mo-acc-ym">'+esc(ymLabel)+'</span>'+
+        '<div class="mo-acc-meta">'+
+          '<span class="mo-acc-cnt">'+accBadgesHtml+'<b style="color:var(--text2);font-size:12px;">합계 '+mo.total+'건</b></span>'+
+          '<span class="mo-acc-chev'+(isOpen?' open':'')+'" id="mo-chev-'+ym+'">▾</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="mo-acc-body'+(isOpen?' open':'')+'" id="mo-body-'+ym+'">'+
+        '<div class="mo-acc-in">'+
+          '<div class="mo-sub-hdr">접수자별</div>'+
+          buildBars(mo.acc, mo.total, colors, 70)+
+          '<div class="mo-sub-hdr">점검유형별</div>'+
+          buildBars(mo.typ, mo.total, typColors, 90)+
+        '</div>'+
+      '</div>'+
+    '</div>';
   });
-  html += '<tr style="background:rgba(114,37,107,0.04)"><td><b>합계</b></td>';
-  monthTotal.forEach(function(n,i){
-    var col=colors[i%colors.length];
-    html += '<td><span class="mo-cell" style="background:'+col+'22;color:'+col+';">'+n+'</span></td>';
-  });
-  html += '<td><b>'+grandTotal+'</b></td></tr>';
-  html += '</tbody></table></div></div>';
+  html += '</div>';
 
   el.innerHTML = html;
 }
