@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>WO Request Log · Vantive DJ Service</title>
+<style>
+:root{
+  --nav-h:64px;
+  --plum:#72256B;--plum-d:#5C1B56;--plum-light:rgba(114,37,107,0.09);
+  --cream:#FFFAEB;
+  --pine:#105742;--pine-light:rgba(16,87,66,0.10);
+  --euca:#6CA07A;--euca-light:rgba(108,160,122,0.15);
+  --sage:#CDDFD7;
+  --amber:#D4700A;--amber-light:rgba(212,112,10,0.10);
+  --danger:#C0392B;--danger-light:rgba(192,57,43,0.10);
+  --white:#FFFFFF;--text:#1C1C1E;--text2:#52525B;--text3:#A1A1AA;
+  --border:rgba(0,0,0,0.07);--border-p:rgba(114,37,107,0.14);
+  --shadow:0 2px 14px rgba(0,0,0,0.06);--r:14px;--r-xs:5px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  background:var(--cream);color:var(--text);font-size:14px;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(var(--nav-h) + max(env(safe-area-inset-bottom,0px),10px));}
+
+/* ── Header ── */
+.hdr{background:linear-gradient(150deg,var(--plum-d) 0%,var(--plum) 60%,#8B3080 100%);
+  padding:calc(16px + env(safe-area-inset-top,0px)) 18px 0;
+  position:sticky;top:0;z-index:200;overflow:hidden;}
+.hdr::after{content:">>>";position:absolute;right:16px;bottom:18px;
+  font-size:22px;font-weight:900;color:rgba(255,250,235,0.10);letter-spacing:-2px;
+  font-family:"Arial Black",Arial,sans-serif;}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;position:relative;z-index:2;}
+.wmark-wrap{display:flex;flex-direction:column;gap:4px;}
+.wmark-img{height:26px;width:auto;max-width:100px;display:block;}
+.tagline{font-size:12px;font-weight:700;color:rgba(255,250,235,0.55);letter-spacing:1.8px;text-transform:uppercase;font-family:"Arial Black",Arial,sans-serif;}
+.total-badge{background:rgba(255,250,235,0.18);border:1px solid rgba(255,250,235,0.25);
+  color:var(--cream);font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;flex-shrink:0;margin-top:2px;}
+.s-wrap{position:relative;margin-bottom:10px;z-index:2;}
+.s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.s-inp{width:100%;padding:12px 42px 12px 44px;background:rgba(255,250,235,0.13);
+  border:1.5px solid rgba(255,250,235,0.22);border-radius:12px;font-size:14px;
+  color:var(--cream);outline:none;font-family:inherit;transition:background .18s,border-color .18s;}
+.s-inp:focus{background:rgba(255,250,235,0.22);border-color:rgba(255,250,235,0.45);}
+.s-inp::placeholder{color:rgba(255,250,235,0.45);}
+.s-clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:rgba(255,250,235,0.22);border:none;border-radius:50%;
+  width:22px;height:22px;font-size:12px;cursor:pointer;color:var(--cream);
+  font-weight:700;display:none;line-height:22px;text-align:center;}
+.s-clr.show{display:block;}
+.s-hint{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-bottom:12px;
+  font-size:11px;color:rgba(255,250,235,0.58);position:relative;z-index:2;}
+.h-arr{color:rgba(255,250,235,0.75);font-weight:900;letter-spacing:-2px;font-family:"Arial Black",Arial,sans-serif;}
+.h-ex{background:rgba(255,250,235,0.14);border:1px solid rgba(255,250,235,0.18);
+  color:rgba(255,250,235,0.9);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;}
+
+/* ── Filters ── */
+.filt{background:var(--cream);padding:10px 16px;border-bottom:1px solid var(--border);}
+.flbl{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1.6px;text-transform:uppercase;margin-bottom:6px;font-family:"Arial Black",Arial,sans-serif;}
+.seg-row{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.seg-row::-webkit-scrollbar{display:none;}
+.seg{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
+  cursor:pointer;user-select:none;white-space:nowrap;background:rgba(0,0,0,0.05);color:var(--text2);
+  border:1.5px solid transparent;transition:all .15s ease;font-family:inherit;display:inline-flex;align-items:center;}
+.seg.on{background:var(--plum);color:var(--cream);border-color:var(--plum);}
+.seg:active{transform:scale(0.95);}
+.frow{margin-bottom:8px;}.frow:last-child{margin-bottom:0;}
+
+/* ── Status bar ── */
+.sbar{padding:7px 18px 5px;font-size:12px;color:var(--text2);background:var(--cream);}
+.sbar b{color:var(--plum);font-weight:700;}
+
+/* ── Cards ── */
+.cards{padding:8px 14px 24px;display:flex;flex-direction:column;gap:8px;}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;}
+.chead{display:flex;align-items:flex-start;gap:10px;padding:12px 13px 10px;cursor:pointer;}
+.wo-num{display:inline-flex;align-items:center;justify-content:center;
+  min-width:38px;padding:3px 7px;border-radius:var(--r-xs);font-size:11px;font-weight:800;
+  white-space:nowrap;flex-shrink:0;margin-top:2px;
+  font-family:monospace;background:var(--plum-light);color:var(--plum);border:1px solid var(--border-p);}
+.cbody{flex:1;min-width:0;}
+.ctitle{font-size:13.5px;font-weight:700;line-height:1.4;margin-bottom:5px;color:var(--text);}
+.cmeta{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.chev{color:var(--text3);flex-shrink:0;margin-top:2px;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.04);border-radius:50%;transition:transform .25s ease,background .15s;}
+.chev.open{transform:rotate(180deg);background:var(--plum-light);color:var(--plum);}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.b-acc{background:var(--plum-light);color:var(--plum);border:1px solid var(--border-p);}
+.b-repair{background:var(--danger-light);color:var(--danger);}
+.b-fch{background:var(--amber-light);color:var(--amber);}
+.b-pm{background:var(--pine-light);color:var(--pine);}
+.b-install{background:var(--euca-light);color:#0a6b4e;}
+.b-other{background:rgba(0,0,0,0.05);color:var(--text3);}
+.b-date{background:rgba(0,0,0,0.04);color:var(--text3);font-family:monospace;font-size:10px;}
+
+/* ── Detail Panel ── */
+.cdet{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);}
+.cdet.open{max-height:600px;border-top:1px solid var(--border);}
+.cdet-in{padding:14px 13px 16px;background:rgba(255,250,235,0.5);}
+.drow{display:flex;gap:8px;margin-bottom:9px;align-items:flex-start;}
+.drow:last-child{margin-bottom:0;}
+.dlbl{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1.2px;text-transform:uppercase;
+  min-width:80px;flex-shrink:0;padding-top:2px;font-family:"Arial Black",Arial,sans-serif;}
+.dval{font-size:13px;color:var(--text);line-height:1.55;word-break:break-word;}
+.dval.highlight{background:var(--plum-light);color:var(--plum);
+  border-radius:6px;padding:5px 9px;font-weight:600;font-family:monospace;}
+.divider-arrow{display:flex;align-items:center;gap:6px;margin:10px 0 8px;}
+.divider-arrow::before,.divider-arrow::after{content:"";flex:1;height:1px;background:var(--border);}
+.divider-arrow span{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:60px 24px;color:var(--text2);display:none;}
+.empty-ico{font-size:46px;margin-bottom:12px;opacity:.4;}
+.empty h3{font-size:17px;font-weight:700;margin-bottom:6px;}
+.empty p{font-size:13px;}
+
+/* ── Stats Panel ── */
+.stats-panel{padding:16px 14px 24px;}
+.stat-section{margin-bottom:20px;}
+.stat-hdr{font-size:10px;font-weight:800;color:var(--pine);letter-spacing:1.6px;
+  text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;
+  border-bottom:2px solid var(--euca-light);
+  font-family:"Arial Black",Arial,sans-serif;}
+.stat-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);
+  border:1px solid var(--border);padding:16px 18px;margin-bottom:10px;}
+.stat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.stat-row:last-child{margin-bottom:0;}
+.stat-name{font-size:13px;font-weight:700;color:var(--text);min-width:70px;}
+.stat-bar-wrap{flex:1;height:22px;background:rgba(0,0,0,0.04);border-radius:4px;overflow:hidden;}
+.stat-bar{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;padding-left:8px;}
+.stat-bar span{font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);}
+.stat-cnt{font-size:13px;font-weight:800;min-width:36px;text-align:right;font-family:monospace;}
+.stat-pct{font-size:11px;color:var(--text3);min-width:38px;text-align:right;}
+
+/* Monthly table */
+.mo-table{width:100%;border-collapse:collapse;}
+.mo-table th{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1px;
+  text-transform:uppercase;padding:6px 8px;border-bottom:1.5px solid var(--border);
+  text-align:left;font-family:"Arial Black",Arial,sans-serif;}
+.mo-table td{font-size:12px;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--text2);}
+.mo-table td:first-child{font-weight:700;color:var(--text);font-family:monospace;}
+.mo-table tr:last-child td{border-bottom:none;}
+.mo-cell{display:inline-block;padding:2px 7px;border-radius:4px;font-weight:700;font-size:11px;text-align:center;min-width:30px;}
+
+/* Summary kpi cards */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.kpi{background:var(--white);border-radius:12px;box-shadow:var(--shadow);
+  border:1px solid var(--border);padding:14px 12px;text-align:center;}
+.kpi-val{font-size:26px;font-weight:900;color:var(--plum);line-height:1;margin-bottom:4px;
+  font-family:"Arial Black",Arial,sans-serif;}
+.kpi-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.8px;}
+
+/* ── Bottom Nav ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;min-height:var(--nav-h);
+  background:#B5CFBC;border-top:1.5px solid rgba(114,37,107,0.18);
+  display:flex;align-items:flex-start;padding-top:10px;
+  padding-bottom:max(env(safe-area-inset-bottom,0px),10px);z-index:200;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:3px 4px;cursor:pointer;border:none;background:none;font-family:inherit;
+  -webkit-tap-highlight-color:transparent;}
+.bnav-svg{width:22px;height:22px;color:rgba(114,37,107,0.4);transition:color .15s,transform .18s cubic-bezier(.34,1.56,.64,1);}
+.bnav-label{font-size:9px;font-weight:800;color:rgba(114,37,107,0.5);
+  font-family:"Arial Black",Arial,sans-serif;letter-spacing:.4px;text-transform:uppercase;}
+.bnav-item.on .bnav-svg{color:var(--plum);transform:scale(1.12);}
+.bnav-item.on .bnav-label{color:var(--plum);}
+.bnav-item:active .bnav-svg{transform:scale(0.88);}
+.tab-panel{display:none;}.tab-panel.on{display:block;}
+
+mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;padding:0 1px;}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="wmark-wrap">
+      <img class="wmark-img" src="data:image/png;base64,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" alt="Vantive">
+      <span class="tagline">DJ Service &nbsp;·&nbsp; WO Log</span>
+    </div>
+    <span class="total-badge" id="totalBadge">— WOs</span>
+  </div>
+  <div class="s-wrap">
+    <svg class="s-ico" width="18" height="18" viewBox="0 0 24 24" fill="none"
+      stroke="rgba(255,250,235,0.6)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input id="sInp" class="s-inp" type="search"
+      placeholder="거래처, 장비명, 고장내용, 시리얼 검색…"
+      autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="s-clr" id="sClr" aria-label="Clear">✕</button>
+  </div>
+  <div class="s-hint">
+    <span class="h-arr">&gt;&gt;&gt;</span>
+    <span class="h-ex">충북대</span>
+    <span class="h-ex">AK98</span>
+    <span class="h-ex">repair</span>
+    <span class="h-ex">PA16568</span>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filt" id="filtEl">
+  <div class="frow">
+    <div class="flbl">접수자</div>
+    <div class="seg-row" id="accRow">
+      <button class="seg on" data-v="all">전체</button>
+      <button class="seg" data-v="윤성효">윤성효</button>
+      <button class="seg" data-v="신상학">신상학</button>
+      <button class="seg" data-v="차병철">차병철</button>
+    </div>
+  </div>
+  <div class="frow">
+    <div class="flbl">점검유형</div>
+    <div class="seg-row" id="typRow">
+      <button class="seg on" data-v="all">전체</button>
+      <button class="seg" data-v="repair">Repair</button>
+      <button class="seg" data-v="fch">FCH</button>
+      <button class="seg" data-v="pm">PM</button>
+      <button class="seg" data-v="install">Install</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div class="sbar" id="sbarEl">전체 WO 조회 중</div>
+
+<!-- Search Tab -->
+<div class="tab-panel on" id="searchPanel">
+  <div class="cards" id="cardsEl"></div>
+  <div class="empty" id="emptyEl">
+    <div class="empty-ico">🔍</div>
+    <h3>검색 결과 없음</h3>
+    <p>다른 검색어나 필터를 시도해보세요.</p>
+  </div>
+</div>
+
+<!-- Stats Tab -->
+<div class="tab-panel" id="statsPanel">
+  <div class="stats-panel" id="statsPanelInner"></div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bnav">
+  <button class="bnav-item on" onclick="switchTab('search',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <span class="bnav-label">Search</span>
+  </button>
+  <button class="bnav-item" onclick="switchTab('stats',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+    <span class="bnav-label">Stats</span>
+  </button>
+</nav>
+
+<script>
+var WO=[
+{dt:"2025-08-28 09:47:45",sender:"윤성효부장님",acc:"윤성효",time:"09:40",acct:"충북대",typ:"Repair",dev:"prismaflex",fault:"scale failure",mode:"Fch",note:"n/a",sn:""},
+{dt:"2025-08-28 09:50:00",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"효성병원",typ:"version upgrade",dev:"AK98",fault:"n/a",mode:"n/a",note:"3.2.0 upgrade",sn:""},
+{dt:"2025-08-28 13:40:43",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"효성병원",typ:"Repair",dev:"AK98",fault:"0511 088 066 027",mode:"setup",note:"s/n: AK078382",sn:"AK078382"},
+{dt:"2025-08-29 10:01:49",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"대전을지대학교병원",typ:"PM2",dev:"artis physio plus",fault:"n/a",mode:"n/a",note:"s/n FX042145,FX042299, FX042615, FX042141",sn:"FX042145,FX042299, FX042615, FX042141"},
+{dt:"2025-08-29 10:18:45",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"Internal leak",mode:"setup",note:"s/n: AK055773",sn:"AK055773"},
+{dt:"2025-08-29 12:43:07",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"Unstable conductivity",mode:"treatment",note:"s/n: 16565",sn:"16565"},
+{dt:"2025-08-29 15:26:44",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 672 error",mode:"setup",note:"s/n: FX028787",sn:"FX028787"},
+{dt:"2025-09-01 15:18:36",sender:"윤성효부장님",acc:"윤성효",time:"14:30",acct:"남궁요양병원",typ:"Repair",dev:"AK98",fault:"External leak",mode:"Disinfection",note:"s/n: AK060762",sn:"AK060762"},
+{dt:"2025-09-02 11:07:30",sender:"차병철대리/엠글로벌",acc:"차병철",time:"09:38",acct:"예산김철우푸른내과",typ:"Repair",dev:"AP",fault:"#505 알람",mode:"treatment",note:"",sn:""},
+{dt:"2025-09-02 11:10:29",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"태안현대요양병원",typ:"repair",dev:"ak98",fault:"0511 088 004 029",mode:"setup",note:"s/n 12083",sn:"12083"},
+{dt:"2025-09-02 11:27:31",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"0511 088 130 029",mode:"setup",note:"s/n: 26504",sn:"26504"},
+{dt:"2025-09-02 11:30:17",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"AK98",fault:"ultrafilter replacement",mode:"n/a",note:"s/n: 16565",sn:"16565"},
+{dt:"2025-09-02 11:32:44",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2025-09-04 09:50:50",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"남궁요양병원",typ:"Repair",dev:"AK98",fault:"Unstable conductivity",mode:"setup",note:"s/n: AK 055299",sn:"AK 055299"},
+{dt:"2025-09-04 09:53:31",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: 21805",sn:"21805"},
+{dt:"2025-09-04 15:25:40",sender:"윤성효부장님",acc:"윤성효",time:"14:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"0511 088 066 027 error",mode:"setup",note:"s/n: 27340",sn:"27340"},
+{dt:"2025-09-05 11:06:13",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"이상주내과",typ:"PM2",dev:"artis physio",fault:"n/a",mode:"n/a",note:"",sn:"FX024307"},
+{dt:"2025-09-05 16:47:15",sender:"윤성효부장님",acc:"윤성효",time:"15:00",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"Internal leak",mode:"Disinfection",note:"s/n: FX031415",sn:"FX031415"},
+{dt:"2025-09-06 10:58:01",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"#183",mode:"setup",note:"s/n: FX031401",sn:"FX031401"},
+{dt:"2025-09-06 10:59:32",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"#466",mode:"setup",note:"s/n: FX031400",sn:"FX031400"},
+{dt:"2025-09-06 14:07:23",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"557",mode:"setup",note:"s/n: AK 053465",sn:"AK 053465"},
+{dt:"2025-09-08 11:52:17",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"0511 088 060 021",mode:"setup",note:"s/n: 28767",sn:"28767"},
+{dt:"2025-09-09 09:00:15",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"태안현대요양병원",typ:"repair",dev:"ak98",fault:"0510 088 236 014",mode:"setup",note:"s/n 12083",sn:"12083"},
+{dt:"2025-09-09 09:01:29",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503",mode:"setup",note:"s/n 62735, 62736",sn:"62735, 62736"},
+{dt:"2025-09-09 09:39:58",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"internal leak",mode:"setup",note:"s/n 62754",sn:"62754"},
+{dt:"2025-09-09 10:27:11",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2025-09-09 12:00:14",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"},
+{dt:"2025-09-09 16:57:27",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"대전을지대학교병원",typ:"PM2",dev:"artis physio plus",fault:"n/a",mode:"n/a",note:"s/n FX042293, FX042138",sn:"FX042293, FX042138"},
+{dt:"2025-09-10 14:58:10",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"internal leak",mode:"setup",note:"s/n: FX031507",sn:"FX031507"},
+{dt:"2025-09-10 15:03:22",sender:"윤성효부장님",acc:"윤성효",time:"12:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"#604  alarm(venous clamp test failure)",mode:"setup",note:"s/n: AK055671",sn:"AK055671"},
+{dt:"2025-09-11 15:45:49",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"0506 009 001 045",mode:"treatment",note:"s/n: 28495",sn:"28495"},
+{dt:"2025-09-11 15:49:08",sender:"윤성효부장님",acc:"윤성효",time:"15:40",acct:"충북대병원",typ:"repair",dev:"Artis physio",fault:"External leak",mode:"Disinfection",note:"s/n: FX037633",sn:"FX037633"},
+{dt:"2025-09-11 17:28:53",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"대전을지대학교병원",typ:"PM2",dev:"artis physio plus",fault:"n/a",mode:"n/a",note:"s/n FX040371, FX041400",sn:"FX040371, FX041400"},
+{dt:"2025-09-12 19:40:56",sender:"윤성효부장님",acc:"윤성효",time:"17:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"#607 alarm",mode:"Disinfection",note:"s/n: 27056",sn:"27056"},
+{dt:"2025-09-16 09:38:40",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
+{dt:"2025-09-16 09:40:28",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter (U9000) replacement",mode:"n/a",note:"s/n: AK 060770",sn:"AK 060770"},
+{dt:"2025-09-16 09:51:55",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK056205",sn:"AK056205"},
+{dt:"2025-09-16 09:52:29",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK055300",sn:"AK055300"},
+{dt:"2025-09-17 08:10:30",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"0504 014 001 072",mode:"Disinfection",note:"s/n: 27116",sn:"27116"},
+{dt:"2025-09-17 08:12:48",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"repair",dev:"Artis physio",fault:"Broken(Bicart holder broken)",mode:"setup",note:"s/n: FX031412",sn:"FX031412"},
+{dt:"2025-09-18 09:52:00",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"이화병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK069316",sn:"AK069316"},
+{dt:"2025-09-18 09:55:00",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"이화병원",typ:"repair",dev:"AK98",fault:"#607 alarm(2대)",mode:"Disinfection",note:"s/n: AK069407, AK069739",sn:"AK069407, AK069739"},
+{dt:"2025-09-18 15:43:31",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX031469",sn:"FX031469"},
+{dt:"2025-09-18 15:45:54",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"#434 error",mode:"setup",note:"s/n: FX031415",sn:"FX031415"},
+{dt:"2025-09-18 15:48:52",sender:"윤성효부장님",acc:"윤성효",time:"09:30",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"broken(BP cuff leak-2대)",mode:"setup",note:"s/n: FX031030, FX031431",sn:"FX031030, FX031431"},
+{dt:"2025-09-19 20:01:12",sender:"윤성효부장님",acc:"윤성효",time:"18:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"#537",mode:"Disinfection",note:"s/n: 28758",sn:"28758"},
+{dt:"2025-09-22 11:56:50",sender:"차병철대리/엠글로벌",acc:"차병철",time:"07:30",acct:"예산김철우푸른내과",typ:"repair",dev:"Artis",fault:"375",mode:"Setup",note:"s/n: 030095",sn:"030095"},
+{dt:"2025-09-22 22:32:15",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"대전을지대학교병원",typ:"PM2",dev:"artis physio plus",fault:"n/a",mode:"n/a",note:"s/n FX040362, FX040363, FX040366, FX040372, FX041388, FX041390, FX041391, FX041397, FX041401, FX041402, FX041403, FX041800, FX041804",sn:"FX040362, FX040363, FX040366, FX040372, FX041388, FX041390, FX041391, FX041397, FX041401, FX041402, FX041403, FX041800, FX041804"},
+{dt:"2025-09-23 14:10:47",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 -battery failure",mode:"setup",note:"s/n 62756",sn:"62756"},
+{dt:"2025-09-24 11:21:02",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"충북대병원",typ:"repair",dev:"Artis physio",fault:"#111",mode:"treatment",note:"s/n: FX031412",sn:"FX031412"},
+{dt:"2025-09-25 09:26:39",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK055270, AK055299",sn:"AK055270, AK055299"},
+{dt:"2025-09-25 14:30:07",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"부여서울연합내과",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"",sn:"AK070173"},
+{dt:"2025-09-25 14:31:14",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"박영선내과",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"",sn:"AK070163"},
+{dt:"2025-09-25 16:52:18",sender:"윤성효부장님",acc:"윤성효",time:"14:30",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"External leak",mode:"Disinfection",note:"s/n: FX031105",sn:"FX031105"},
+{dt:"2025-09-26 12:32:59",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"이상주내과",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX015398"},
+{dt:"2025-09-26 14:16:01",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"순천향 천안병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: 21862,21868",sn:"21862,21868"},
+{dt:"2025-09-30 10:22:07",sender:"윤성효부장님",acc:"윤성효",time:"09:30",acct:"하나병원",typ:"Repair",dev:"prismaflex",fault:"Noise(Replacement pump)",mode:"setup",note:"s/n: PA16563",sn:"PA16563"},
+{dt:"2025-09-30 10:55:04",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"박영선내과",typ:"Base Kit",dev:"AK98",fault:"n/a",mode:"n/a",note:"",sn:"19486"},
+{dt:"2025-09-30 10:55:53",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"김철우푸른내과",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX030644"},
+{dt:"2025-09-30 12:10:02",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base Kit",dev:"AK98",fault:"n/a",mode:"n/a",note:"",sn:"AK056202, AK055267"},
+{dt:"2025-10-01 12:37:04",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base Kit",dev:"AK98",fault:"n/a",mode:"n/a",note:"",sn:"AK055298, AK055272"},
+{dt:"2025-10-02 09:40:59",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-0-10-01 09:40",acct:"김철우푸른내과",typ:"Repair",dev:"Artis Physio",fault:"#4",mode:"During Setup",note:"",sn:"FX030630 , FX030678 , FX030644"},
+{dt:"2025-10-02 10:20:29",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"선병원",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX035571",sn:""},
+{dt:"2025-10-02 15:28:46",sender:"윤성효부장님",acc:"윤성효",time:"10:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"#557",mode:"setup",note:"s/n: AK055674",sn:"AK055674"},
+{dt:"2025-10-03 19:16:25",sender:"윤성효부장님",acc:"윤성효",time:"18:30",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"s/n: FX031418",sn:"FX031418"},
+{dt:"2025-10-07 19:33:01",sender:"윤성효부장님",acc:"윤성효",time:"17:00",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# 665error",mode:"Disinfection",note:"s/n: FX037625",sn:"FX037625"},
+{dt:"2025-10-07 21:30:06",sender:"윤성효부장님",acc:"윤성효",time:"17:00",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# 504",mode:"Disinfection",note:"s/n: FX031395",sn:"FX031395"},
+{dt:"2025-10-08 18:38:25",sender:"윤성효부장님",acc:"윤성효",time:"17:30",acct:"충북대병원",typ:"Repair",dev:"Prismaflex",fault:"# Scale test failure",mode:"setup",note:"s/n: PA16137",sn:"PA16137"},
+{dt:"2025-10-10 12:57:39",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2025-10-10 13:01:40",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"#607",mode:"Disinfection",note:"s/n: 26499",sn:"26499"},
+{dt:"2025-10-10 19:23:53",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 -battery failure",mode:"setup",note:"s/n 61509",sn:"61509"},
+{dt:"2025-10-10 19:25:42",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"0504 020 011 047 UF cell taration not approved",mode:"setup",note:"s/n 62765",sn:"62765"},
+{dt:"2025-10-11 15:33:16",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"Disinfection",note:"s/n: 26551",sn:"26551"},
+{dt:"2025-10-11 15:34:38",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"s/n: AK054956",sn:"AK054956"},
+{dt:"2025-10-13 17:05:13",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# Bicart holder broken",mode:"setup",note:"s/n: 28439",sn:"28439"},
+{dt:"2025-10-13 17:07:12",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"0506 009 001 034",mode:"setup",note:"s/n: 28449",sn:"28449"},
+{dt:"2025-10-13 17:19:56",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"unstable conductivity",mode:"setup",note:"s/n 62765",sn:"62765"},
+{dt:"2025-10-13 18:16:51",sender:"윤성효부장님",acc:"윤성효",time:"09:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# Unstable  conductivity",mode:"setup",note:"s/n: AK055804",sn:"AK055804"},
+{dt:"2025-10-14 10:02:15",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2025-10-14 10:54:27",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"},
+{dt:"2025-10-14 10:56:29",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK055664",sn:"AK055664"},
+{dt:"2025-10-14 17:14:47",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-10-14",acct:"천안충무병원",typ:"Repair",dev:"AK98",fault:"Unstable Conductivity",mode:"During Setup",note:"AK074865 , AK074869",sn:""},
+{dt:"2025-10-15 18:20:21",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX037625",sn:"FX037625"},
+{dt:"2025-10-16 09:22:33",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
+{dt:"2025-10-16 12:55:49",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"# External leak",mode:"Disinfection",note:"s/n: FX031212",sn:"FX031212"},
+{dt:"2025-10-16 13:00:08",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"선병원",typ:"Installation",dev:"AK98(3대)",fault:"n/a",mode:"n/a",note:"s/n: AK078679,",sn:"AK078679"},
+{dt:"2025-10-20 09:56:47",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"0511 088 130 029 (UFS failed evaluation phase)",mode:"setup",note:"s/n 63707",sn:"63707"},
+{dt:"2025-10-20 13:23:08",sender:"차병철대리/엠글로벌",acc:"차병철",time:"09:30",acct:"천안충무병원",typ:"Repair",dev:"prismaflex",fault:"scale failure",mode:"Fch",note:"",sn:"PA34802"},
+{dt:"2025-10-20 13:29:31",sender:"윤성효부장님",acc:"윤성효",time:"12:00",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"External leak",mode:"Disinfection",note:"s/n: FX037632",sn:"FX037632"},
+{dt:"2025-10-21 11:51:22",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"0511 088 066 027",mode:"setup",note:"s/n: 26563",sn:"26563"},
+{dt:"2025-10-22 13:15:26",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"Unstable conductivity",mode:"treatment",note:"s/n: AK054959",sn:"AK054959"},
+{dt:"2025-10-22 13:23:32",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"#607 alarm",mode:"Disinfection",note:"s/n: AK053469",sn:"AK053469"},
+{dt:"2025-10-23 09:49:34",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"선병원",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX035672",sn:""},
+{dt:"2025-10-23 09:49:49",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"선병원",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX035670",sn:""},
+{dt:"2025-10-23 10:48:48",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-10-23",acct:"천안충무병원",typ:"Repair",dev:"AK98",fault:"Unstable Conductivity",mode:"During Setup",note:"AK074870",sn:""},
+{dt:"2025-10-24 12:59:34",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-10-24",acct:"김철우푸른내과",typ:"Repair",dev:"Artis Physio",fault:"#64",mode:"During Setup",note:"",sn:"FX030666"},
+{dt:"2025-10-24 13:01:43",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 -battery failure",mode:"setup",note:"s/n 61508",sn:"61508"},
+{dt:"2025-10-24 13:03:05",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"internal leak",mode:"setup",note:"s/n 62765",sn:"62765"},
+{dt:"2025-10-27 13:09:35",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"internal leak",mode:"setup",note:"s/n FX031469",sn:"FX031469"},
+{dt:"2025-10-28 11:39:20",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-10-28",acct:"천안충무병원",typ:"Repair",dev:"AK98",fault:"0511 088 130 029",mode:"During Setup",note:"AK067220",sn:""},
+{dt:"2025-10-28 12:15:00",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"청주성모병원",typ:"repair",dev:"AK98",fault:"internal leak",mode:"setup",note:"s/n 26293",sn:"26293"},
+{dt:"2025-10-28 12:16:54",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"청주의료원",typ:"repair",dev:"Artis physio",fault:"# 111 error",mode:"setup",note:"s/n FX025505",sn:"FX025505"},
+{dt:"2025-10-28 13:00:53",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"internal leak",mode:"setup",note:"s/n 62752",sn:"62752"},
+{dt:"2025-10-28 13:01:30",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"unstable conductivity",mode:"setup",note:"s/n 61509",sn:"61509"},
+{dt:"2025-10-30 10:38:27",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"internal leak",mode:"setup",note:"s/n 28774",sn:"28774"},
+{dt:"2025-11-03 12:29:38",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"효성병원",typ:"repair",dev:"AK98",fault:"0510 088 048 015",mode:"setup",note:"s/n AK078577",sn:"AK078577"},
+{dt:"2025-11-03 14:07:29",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"#607 alarm",mode:"Disinfection",note:"s/n AK055778",sn:"AK055778"},
+{dt:"2025-11-05 14:39:19",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n 62734",sn:"62734"},
+{dt:"2025-11-05 18:00:18",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX031407",sn:"FX031407"},
+{dt:"2025-11-06 09:25:51",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"남궁요양병원",typ:"repair",dev:"AK98",fault:"0511 088 005 020",mode:"setup",note:"s/n AK060764",sn:"AK060764"},
+{dt:"2025-11-06 13:03:14",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"#503 battery fail",mode:"setup",note:"s/n 16565",sn:"16565"},
+{dt:"2025-11-06 13:04:56",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"#607alarm",mode:"Disinfection",note:"s/n 16859",sn:"16859"},
+{dt:"2025-11-06 13:06:27",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2025-11-07 15:51:26",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"Noise",mode:"Disinfection",note:"s/n AK055818",sn:"AK055818"},
+{dt:"2025-11-11 10:02:05",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2025-11-11 11:30:59",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"},
+{dt:"2025-11-11 11:35:26",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"#604",mode:"setup",note:"s/n 21627",sn:"21627"},
+{dt:"2025-11-12 14:39:47",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# Internal leak",mode:"Disinfection",note:"s/n  16922",sn:"16922"},
+{dt:"2025-11-12 16:38:58",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"대전을지대학교병원",typ:"PM2",dev:"artis physio plus",fault:"n/a",mode:"n/a",note:"s/n FX042290, FX042137",sn:"FX042290, FX042137"},
+{dt:"2025-11-13 14:20:05",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"0511 088 130 029",mode:"setup",note:"s/n  AK055771",sn:"AK055771"},
+{dt:"2025-11-15 09:51:34",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"효성병원",typ:"repair",dev:"AK98",fault:"0511 088 066 027",mode:"setup",note:"s/n  AK078584",sn:"AK078584"},
+{dt:"2025-11-15 15:50:09",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"#607alarm",mode:"Disinfection",note:"s/n 28447",sn:"28447"},
+{dt:"2025-11-18 09:36:02",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
+{dt:"2025-11-18 12:39:28",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"#0511 088 066 027",mode:"setup",note:"s/n AK055818",sn:"AK055818"},
+{dt:"2025-11-18 14:31:24",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-11-18",acct:"김철우푸른내과",typ:"Repair",dev:"Artis Physio",fault:"#146",mode:"During Setup",note:"",sn:"FX029870"},
+{dt:"2025-11-24 12:30:47",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"엄재호내과",typ:"repair",dev:"ak98",fault:"# 0117 047 000 022",mode:"setup",note:"s/n 26563",sn:"26563"},
+{dt:"2025-11-25 11:30:48",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-11-20",acct:"보령아산병원",typ:"PM2",dev:"Artis Physio plus",fault:"",mode:"",note:"",sn:""},
+{dt:"2025-11-25 11:35:14",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"충북대병원",typ:"repair",dev:"Artis physio",fault:"# 426 error",mode:"Disinfection",note:"s/n FX031418",sn:"FX031418"},
+{dt:"2025-11-25 14:31:22",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"이화병원",typ:"repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"s/n AK068347",sn:"AK068347"},
+{dt:"2025-11-25 14:33:18",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: 62740",sn:"62740"},
+{dt:"2025-11-25 14:44:49",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-11- 25",acct:"을지대학교병원",typ:"PM2",dev:"Artis Physio plus",fault:"",mode:"",note:"",sn:"FX042134"},
+{dt:"2025-11-26 10:15:03",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"PM",dev:"CWP66",fault:"n/a",mode:"n/a",note:"600996",sn:""},
+{dt:"2025-11-26 10:16:58",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"참편한내과",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX030014"},
+{dt:"2025-11-27 11:54:14",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 battery failure",mode:"setup",note:"s/n 62749",sn:"62749"},
+{dt:"2025-11-27 12:50:56",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"s/n AK055666",sn:"AK055666"},
+{dt:"2025-11-28 12:45:48",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# 557 alarm",mode:"setup",note:"s/n AK055764",sn:"AK055764"},
+{dt:"2025-11-28 21:19:44",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# 503 Battery fail",mode:"setup",note:"s/n 26552",sn:"26552"},
+{dt:"2025-11-28 21:21:31",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# Internal leak",mode:"Disinfection",note:"s/n 26550",sn:"26550"},
+{dt:"2025-11-29 15:12:39",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"# 35 error",mode:"setup",note:"s/n FX031415",sn:"FX031415"},
+{dt:"2025-11-29 15:14:25",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"s/n FX031105",sn:"FX031105"},
+{dt:"2025-12-01 13:04:51",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# 557 alarm",mode:"setup",note:"s/n 26507",sn:"26507"},
+{dt:"2025-12-01 13:41:15",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-11-26",acct:"김재하내과",typ:"PM",dev:"AK98",fault:"",mode:"",note:"013929",sn:""},
+{dt:"2025-12-01 15:23:21",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"단국대병원",typ:"repair",dev:"prismaflex",fault:"# scale fail",mode:"setup",note:"s/n PA5976",sn:"PA5976"},
+{dt:"2025-12-04 11:11:15",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98(4대)",fault:"n/a",mode:"n/a",note:"s/n: AK078862, AK078868, AK078865,",sn:"AK078862, AK078868, AK078865"},
+{dt:"2025-12-04 11:20:03",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK078867, AK078870, AK078860,",sn:"AK078867, AK078870, AK078860"},
+{dt:"2025-12-05 12:38:45",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"s/n AK055779",sn:"AK055779"},
+{dt:"2025-12-05 14:24:56",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# 503 Battery fail",mode:"setup",note:"s/n 26499",sn:"26499"},
+{dt:"2025-12-05 14:27:19",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2025-12-05 14:29:42",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: 16883",sn:"16883"},
+{dt:"2025-12-06 13:26:27",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"남궁요양병원",typ:"repair",dev:"AK98",fault:"# 568 error",mode:"Disinfection",note:"s/n AK060766",sn:"AK060766"},
+{dt:"2025-12-06 14:31:30",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"# 557 error",mode:"setup",note:"s/n 25933",sn:"25933"},
+{dt:"2025-12-08 11:39:36",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"s/n AK055767",sn:"AK055767"},
+{dt:"2025-12-08 11:41:58",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"",sn:"AK078864"},
+{dt:"2025-12-08 11:44:56",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"순천향대학교병원",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"",sn:"AK078858"},
+{dt:"2025-12-08 11:47:03",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"임채남내과",typ:"Base kit PM",dev:"AK98",fault:"# n/a",mode:"n/a",note:"s/n AK059302",sn:"AK059302"},
+{dt:"2025-12-09 11:06:58",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2025-12-09 11:08:03",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"},
+{dt:"2025-12-09 15:21:24",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"효성병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK 078577",sn:"AK 078577"},
+{dt:"2025-12-09 15:39:16",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-12-09",acct:"부여서울연합내과",typ:"Repair",dev:"AK98",fault:"0511 088 130 029",mode:"During Setup",note:"AK019107",sn:""},
+{dt:"2025-12-10 12:52:09",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"PM",dev:"CWP64",fault:"n/a",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2025-12-10 12:53:31",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"PM",dev:"CWP66",fault:"n/a",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
+{dt:"2025-12-12 10:00:44",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98(3대)",fault:"n/a",mode:"n/a",note:"s/n: AK078873,",sn:"AK078873"},
+{dt:"2025-12-12 10:11:51",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"Artis physio",fault:"# n/a",mode:"n/a",note:"s/n FX031407",sn:"FX031407"},
+{dt:"2025-12-12 10:12:50",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"Artis physio",fault:"# n/a",mode:"n/a",note:"s/n FX031469,",sn:"FX031469"},
+{dt:"2025-12-12 10:13:21",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98(3대)",fault:"n/a",mode:"n/a",note:"s/n: AK078876,",sn:"AK078876"},
+{dt:"2025-12-15 13:15:21",sender:"윤성효부장님",acc:"윤성효",time:"06:30",acct:"이화병원",typ:"repair",dev:"AK98",fault:"# Air detector fail",mode:"setup",note:"s/n AK068345",sn:"AK068345"},
+{dt:"2025-12-15 13:16:53",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"s/n AK055761",sn:"AK055761"},
+{dt:"2025-12-15 13:18:56",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"s/n AK055770",sn:"AK055770"},
+{dt:"2025-12-15 14:44:49",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-12-15",acct:"박영선내과",typ:"repair",dev:"ak98",fault:"unstable conductivity",mode:"setup",note:"s/n  021861",sn:"021861"},
+{dt:"2025-12-15 14:50:31",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-12-15",acct:"박영선내과",typ:"repair",dev:"ak98",fault:"unstable conductivity",mode:"setup",note:"s/n  022247",sn:"022247"},
+{dt:"2025-12-15 16:51:23",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-12-15",acct:"김재하내과",typ:"repair",dev:"AK98",fault:"# 503 Battery fail",mode:"setup",note:"",sn:"013919 / s/n 011261"},
+{dt:"2025-12-15 16:52:19",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"s/n 26563",sn:"26563"},
+{dt:"2025-12-16 10:50:41",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98(3대)",fault:"n/a",mode:"n/a",note:"s/n: AK078877,",sn:"AK078877"},
+{dt:"2025-12-16 12:57:01",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"이화병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK 067231",sn:"AK 067231"},
+{dt:"2025-12-16 16:12:24",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-12-16",acct:"부여서울연합내과",typ:"Repair",dev:"AK98",fault:"0511 088 130 029",mode:"During Setup",note:"AK019076 , AK019067",sn:""},
+{dt:"2025-12-16 16:24:18",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX031431",sn:"FX031431"},
+{dt:"2025-12-16 16:26:03",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"단국대병원",typ:"repair",dev:"AK98",fault:"# 503 Battery fail",mode:"setup",note:"s/n 21872",sn:"21872"},
+{dt:"2025-12-19 11:58:47",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이상주내과",typ:"PM2",dev:"Artis",fault:"n/a",mode:"n/a",note:"",sn:"FX014925, FX013395"},
+{dt:"2025-12-19 14:10:01",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# 0511 088 056 026",mode:"setup",note:"s/n AK055666",sn:"AK055666"},
+{dt:"2025-12-19 15:11:37",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"# External leak",mode:"Disinfection",note:"s/n FX031223",sn:"FX031223"},
+{dt:"2025-12-20 15:23:03",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX031412, FX031417"},
+{dt:"2025-12-21 14:28:23",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX031430, FX031395"},
+{dt:"2025-12-22 12:53:58",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# 0504 014 001 072",mode:"setup",note:"s/n AK055773",sn:"AK055773"},
+{dt:"2025-12-23 10:14:16",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
+{dt:"2025-12-23 10:15:34",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK060769",sn:"AK060769"},
+{dt:"2025-12-23 10:21:43",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"남궁요양병원",typ:"repair",dev:"AK98",fault:"# 607",mode:"Disinfection",note:"s/n AK060767",sn:"AK060767"},
+{dt:"2025-12-23 12:15:32",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 battery failure",mode:"setup",note:"s/n 62740, 62733",sn:"62740, 62733"},
+{dt:"2025-12-23 13:06:42",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-12-15",acct:"김재하내과",typ:"repair",dev:"AK98",fault:"# 503 Battery fail",mode:"setup",note:"",sn:"13628"},
+{dt:"2025-12-23 14:00:09",sender:"윤성효부장님",acc:"윤성효",time:"12:00",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"s/n AK054958",sn:"AK054958"},
+{dt:"2025-12-24 11:17:13",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"이화병원",typ:"repair",dev:"AK98",fault:"# 548 alarm",mode:"setup",note:"s/n AK069314",sn:"AK069314"},
+{dt:"2025-12-24 16:53:20",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"엄재호내과",typ:"repair",dev:"AK98(2대)",fault:"# BPM failure",mode:"treatment",note:"s/n 26509, 26550",sn:"26509, 26550"},
+{dt:"2025-12-26 10:11:46",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"s/n  AK055666",sn:"AK055666"},
+{dt:"2025-12-26 10:14:33",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"서연석내과",typ:"repair",dev:"AK98",fault:"# unstable conductivity",mode:"setup",note:"s/n  AK055674",sn:"AK055674"},
+{dt:"2025-12-26 10:16:16",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n 62739",sn:"62739"},
+{dt:"2025-12-26 13:55:48",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"충북대병원",typ:"repair",dev:"Artis physio",fault:"# External leak",mode:"Disinfection",note:"s/n  FX031420",sn:"FX031420"},
+{dt:"2025-12-26 17:14:36",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"s/n  FX031497",sn:"FX031497"},
+{dt:"2025-12-27 14:20:10",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX037625, FX037632"},
+{dt:"2025-12-31 09:28:49",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"Repair",dev:"Artis Physio",fault:"#665",mode:"Disinfection",note:"FX031395",sn:""},
+{dt:"2026-01-02 10:30:06",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"남궁요양병원",typ:"repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"s/n  AK055272",sn:"AK055272"},
+{dt:"2026-01-02 14:28:42",sender:"윤성효부장님",acc:"윤성효",time:"12:00",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# 0510 088 048 015",mode:"setup",note:"s/n  AK055803",sn:"AK055803"},
+{dt:"2026-01-02 14:36:14",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"# unstable conductivity",mode:"setup",note:"s/n  AK019085",sn:"AK019085"},
+{dt:"2026-01-05 11:07:05",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2026-01-05 12:56:29",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"남궁요양병원",typ:"repair",dev:"AK98",fault:"# 503 Battery failure",mode:"setup",note:"s/n  AK060763",sn:"AK060763"},
+{dt:"2026-01-06 10:54:10",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"# Noise",mode:"treatment",note:"s/n  27065",sn:"27065"},
+{dt:"2026-01-07 12:31:02",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"이화병원",typ:"repair",dev:"AK98",fault:"# Air detector alarm",mode:"treatment",note:"s/n  AK068195",sn:"AK068195"},
+{dt:"2026-01-08 12:37:47",sender:"MnH 신상학 과장",acc:"신상학",time:"N/A",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"# clamp unit failed",mode:"setup",note:"s/n  AK020038",sn:"AK020038"},
+{dt:"2026-01-08 12:38:29",sender:"MnH 신상학 과장",acc:"신상학",time:"N/A",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"# external leak",mode:"disinfection",note:"s/n  AK065601",sn:"AK065601"},
+{dt:"2026-01-08 12:53:06",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"남궁요양병원",typ:"repair",dev:"AK98",fault:"# 503 Battery failure",mode:"setup",note:"s/n  AK060766",sn:"AK060766"},
+{dt:"2026-01-10 17:34:54",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"단국대병원",typ:"Repair",dev:"Artis Physio",fault:"# Battery failure",mode:"setup",note:"FX031089",sn:""},
+{dt:"2026-01-10 17:36:32",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"단국대병원",typ:"Repair",dev:"Artis Physio",fault:"# 62 error",mode:"setup",note:"FX031469",sn:""},
+{dt:"2026-01-12 14:07:51",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"# external leak",mode:"setup",note:"s/n  AK019098",sn:"AK019098"},
+{dt:"2026-01-12 14:09:06",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"# 0511 088 130 029 UFS failed evaluation phase",mode:"setup",note:"s/n  AK019076",sn:"AK019076"},
+{dt:"2026-01-12 14:11:34",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"# 0511 088 130 029 UFS failed evaluation phase",mode:"setup",note:"s/n  AK019107",sn:"AK019107"},
+{dt:"2026-01-12 14:12:59",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"# 0511 088 158 028 temperature test error, too high difference",mode:"setup",note:"s/n  AK019077",sn:"AK019077"},
+{dt:"2026-01-12 14:44:22",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# conductivity unstable",mode:"setup",note:"16864",sn:""},
+{dt:"2026-01-12 14:46:08",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 503 battery fail",mode:"setup",note:"26499",sn:""},
+{dt:"2026-01-13 12:01:30",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2026-01-13 12:01:48",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"},
+{dt:"2026-01-13 12:03:08",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK055774",sn:"AK055774"},
+{dt:"2026-01-13 13:38:16",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n 062751",sn:"062751"},
+{dt:"2026-01-13 13:39:08",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 battery failure",mode:"setup",note:"s/n 062737",sn:"062737"},
+{dt:"2026-01-14 12:38:45",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"단국대병원",typ:"Repair",dev:"Artis Physio",fault:"# External leak",mode:"Disinfection",note:"FX031400",sn:""},
+{dt:"2026-01-14 14:49:51",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"Disinfection",note:"AK055666",sn:""},
+{dt:"2026-01-15 13:37:42",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"순천향천안병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK058963,",sn:""},
+{dt:"2026-01-16 10:08:31",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"이화병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK069406,",sn:""},
+{dt:"2026-01-16 10:51:31",sender:"MnH 신상학 과장",acc:"신상학",time:"N/A",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"# #545",mode:"disinfection",note:"s/n  022247",sn:"022247"},
+{dt:"2026-01-16 10:58:53",sender:"MnH 신상학 과장",acc:"신상학",time:"N/A",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"# cuff failure",mode:"n/a",note:"s/n  070164",sn:"070164"},
+{dt:"2026-01-17 11:41:57",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"AK054957",sn:""},
+{dt:"2026-01-17 11:43:14",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: 27116",sn:"27116"},
+{dt:"2026-01-17 15:15:56",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"AK055804",sn:""},
+{dt:"2026-01-19 10:04:12",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK060770,",sn:""},
+{dt:"2026-01-19 12:09:45",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# unstable conductivity",mode:"setup",note:"28439",sn:""},
+{dt:"2026-01-20 09:40:47",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
+{dt:"2026-01-20 11:43:00",sender:"윤성효부장님",acc:"윤성효",time:"10:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# 557 Heparin test failure",mode:"setup",note:"28496",sn:""},
+{dt:"2026-01-21 12:07:32",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# 536 alarm",mode:"setup",note:"28495",sn:""},
+{dt:"2026-01-22 12:40:35",sender:"MnH 신상학 과장",acc:"신상학",time:"N/A",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"# internal leak",mode:"setup",note:"s/n  022247",sn:"022247"},
+{dt:"2026-01-22 12:47:51",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: 22293",sn:"22293"},
+{dt:"2026-01-22 15:43:44",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK060767,",sn:""},
+{dt:"2026-01-23 15:27:49",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# internal leak",mode:"Disinfection",note:"FX031395",sn:""},
+{dt:"2026-01-26 13:45:00",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"26552",sn:""},
+{dt:"2026-01-26 13:51:26",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"선병원",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX030665"},
+{dt:"2026-01-27 14:58:01",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK060765,",sn:""},
+{dt:"2026-01-27 16:51:11",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"# 0324 006 000 072 sensor error",mode:"setup",note:"s/n  AK019107",sn:"AK019107"},
+{dt:"2026-01-27 16:52:40",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"# 0504 020 015 041 unstable flow signals during self calibration",mode:"setup",note:"s/n  AK019098",sn:"AK019098"},
+{dt:"2026-01-28 14:29:41",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"#  unstable conductivity",mode:"setup",note:"AK055671",sn:""},
+{dt:"2026-01-28 14:34:21",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK078882",sn:"AK078882"},
+{dt:"2026-01-29 13:49:47",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"이화병원",typ:"Repair",dev:"AK98",fault:"#  Internal leak",mode:"Disinfection",note:"AK068196",sn:""},
+{dt:"2026-01-29 13:50:39",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"이화병원",typ:"Repair",dev:"AK98",fault:"#  External leak",mode:"Disinfection",note:"AK068345",sn:""},
+{dt:"2026-01-30 14:41:04",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"AK054958",sn:""},
+{dt:"2026-01-30 14:42:33",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 503 battery failure",mode:"setup",note:"26545",sn:""},
+{dt:"2026-01-31 10:00:08",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 665 error",mode:"Disinfection",note:"FX031443",sn:""},
+{dt:"2026-01-31 10:01:16",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"최지욱내과",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: 21849,21869",sn:"21849,21869"},
+{dt:"2026-02-02 10:43:17",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 545alarm",mode:"Disinfection",note:"AK055666",sn:""},
+{dt:"2026-02-04 12:18:23",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 503 alarm",mode:"setup",note:"26507",sn:""},
+{dt:"2026-02-04 16:41:49",sender:"MnH 신상학 과장",acc:"신상학",time:"N/A",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"# external leak",mode:"disinfection",note:"s/n  021657",sn:"021657"},
+{dt:"2026-02-05 14:20:07",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# unstable conductivity",mode:"setup",note:"AK055760",sn:""},
+{dt:"2026-02-05 14:21:27",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"AK055763",sn:""},
+{dt:"2026-02-05 17:40:16",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"Disinfection",note:"28454",sn:""},
+{dt:"2026-02-05 17:41:57",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX031395",sn:"FX031395"},
+{dt:"2026-02-06 12:02:49",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2026-02-07 16:26:23",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"FX031412",sn:""},
+{dt:"2026-02-10 11:35:55",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2026-02-10 11:36:44",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"},
+{dt:"2026-02-10 17:07:47",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 665error",mode:"Disinfection",note:"FX025498",sn:""},
+{dt:"2026-02-11 11:23:24",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"보령아산병원",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"setup",note:"FX042499",sn:""},
+{dt:"2026-02-11 14:05:27",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"AK055668",sn:""},
+{dt:"2026-02-11 17:08:45",sender:"MnH 신상학 과장",acc:"신상학",time:"N/A",acct:"조은내과",typ:"repair",dev:"AK98",fault:"# #503 battery failure",mode:"setup",note:"s/n  62752, 62739",sn:"62752, 62739"},
+{dt:"2026-02-12 10:21:44",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"최지욱내과",typ:"Installation",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"s/n: FX035554,",sn:"FX035554"},
+{dt:"2026-02-13 12:09:53",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"남궁요양병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"AK055270",sn:""},
+{dt:"2026-02-13 15:26:18",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서울연합내과",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n 19107",sn:"19107"},
+{dt:"2026-02-14 15:08:55",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"AK054957",sn:""},
+{dt:"2026-02-16 14:14:08",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# External leak",mode:"Disinfection",note:"FX031418",sn:""},
+{dt:"2026-02-18 12:59:21",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"효성병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"AK078584",sn:""},
+{dt:"2026-02-19 12:19:01",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"단국대병원",typ:"Repair",dev:"Prismaflex",fault:"# Scale test failure",mode:"setup",note:"PA34728",sn:""},
+{dt:"2026-02-19 15:02:47",sender:"윤성효부장님",acc:"윤성효",time:"10:30",acct:"남궁요양병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"AK056617",sn:""},
+{dt:"2026-02-23 12:06:26",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"AK055779",sn:""},
+{dt:"2026-02-24 14:28:24",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
+{dt:"2026-02-24 14:29:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK062753",sn:"AK062753"},
+{dt:"2026-02-25 15:44:58",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"단국대병원",typ:"Repair",dev:"AK98",fault:"# Unstable conductivity",mode:"setup",note:"21805",sn:""},
+{dt:"2026-02-26 09:42:11",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"남궁요양병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"AK055270",sn:""},
+{dt:"2026-02-26 12:48:59",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 131 075",mode:"setup",note:"17318",sn:""},
+{dt:"2026-02-26 13:01:46",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 506error",mode:"treatment",note:"FX028798",sn:""},
+{dt:"2026-02-27 14:06:21",sender:"윤성효부장님",acc:"윤성효",time:"12:00",acct:"건국대충주병원",typ:"Repair",dev:"Artis physio plus",fault:"# External leak",mode:"Disinfection",note:"FX039070",sn:""},
+{dt:"2026-03-03 10:08:48",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"AK98",fault:"# 0505 018 005 026",mode:"setup",note:"16874",sn:""},
+{dt:"2026-03-04 13:03:31",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio plus",fault:"# 422 error",mode:"setup",note:"FX031466",sn:""},
+{dt:"2026-03-04 14:53:10",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"부여서울연합내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: 18772",sn:"18772"},
+{dt:"2026-03-04 15:03:25",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서울연합내과",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n 70173",sn:"70173"},
+{dt:"2026-03-04 17:57:50",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"천안충무병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK069603",sn:"AK069603"},
+{dt:"2026-03-05 13:25:42",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이화병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK068344",sn:"AK068344"},
+{dt:"2026-03-05 14:43:25",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"AK98",fault:"# 503 Battery failure(3대)",mode:"setup",note:"16874, 16865, 17739",sn:""},
+{dt:"2026-03-05 16:44:16",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: 26542",sn:"26542"},
+{dt:"2026-03-06 09:51:19",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"AK055804",sn:""},
+{dt:"2026-03-06 09:52:15",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"16845",sn:""},
+{dt:"2026-03-06 09:53:31",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2026-03-06 14:13:51",sender:"윤성효부장님",acc:"윤성효",time:"10:30",acct:"최지욱내과",typ:"Repair",dev:"Artis physio plus",fault:"# 422 error",mode:"setup",note:"FX031493",sn:""},
+{dt:"2026-03-07 16:18:35",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n 21899",sn:"21899"},
+{dt:"2026-03-10 10:48:32",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2026-03-10 10:49:22",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"},
+{dt:"2026-03-11 10:51:58",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"윤병국내과",typ:"Base kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK074990, AK074883",sn:""},
+{dt:"2026-03-11 13:39:25",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"최지욱내과",typ:"Repair",dev:"AK98",fault:"# unstable conductivity",mode:"setup",note:"21849, 21869",sn:""},
+{dt:"2026-03-11 17:45:52",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n AK062736",sn:"AK062736"},
+{dt:"2026-03-11 17:47:07",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"setup",mode:"#503 battery failure",note:"s/n AK062754",sn:"AK062754"},
+{dt:"2026-03-12 08:55:21",sender:"MnH 신상학 과장",acc:"신상학",time:"3/9",acct:"청주성모병원",typ:"repair",dev:"artis physioII",fault:"setup",mode:"#33,34",note:"FX033569",sn:""},
+{dt:"2026-03-12 09:23:37",sender:"MnH 신상학 과장",acc:"신상학",time:"3/9",acct:"참편한365내과",typ:"repair",dev:"artis physio",fault:"setup",mode:"internal leak",note:"FX025358",sn:""},
+{dt:"2026-03-12 10:45:39",sender:"차병철대리/엠글로벌",acc:"차병철",time:"3/10",acct:"참편한365내과",typ:"repair",dev:"artis physio",fault:"#370",mode:"setup",note:"FX025606",sn:""},
+{dt:"2026-03-12 10:48:25",sender:"차병철대리/엠글로벌",acc:"차병철",time:"3/10",acct:"참편한365내과",typ:"repair",dev:"artis physio",fault:"#422",mode:"setup",note:"FX025364",sn:""},
+{dt:"2026-03-12 12:09:22",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"AK055669",sn:""},
+{dt:"2026-03-12 12:10:22",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# unstable conductivity",mode:"setup",note:"AK055761",sn:""},
+{dt:"2026-03-12 15:49:41",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"단국대병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 129 027",mode:"setup",note:"21873",sn:""},
+{dt:"2026-03-12 15:51:49",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: 21872",sn:"21872"},
+{dt:"2026-03-12 15:55:59",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"# BPM failure(2대)",mode:"treatment",note:"FX031235, FX031089",sn:""},
+{dt:"2026-03-12 17:20:05",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"천안충무병원",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n AK067221",sn:"AK067221"},
+{dt:"2026-03-13 14:02:38",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이화병원",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n AK069737",sn:"AK069737"},
+{dt:"2026-03-13 14:44:01",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"의료법인영서의료재단",typ:"repair",dev:"ak98",fault:"#220",mode:"treatment",note:"s/n AK069681",sn:"AK069681"},
+{dt:"2026-03-13 14:45:31",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"의료법인영서의료재단",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK069681",sn:"AK069681"},
+{dt:"2026-03-14 13:35:06",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"AK055767",sn:""},
+{dt:"2026-03-14 13:36:51",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"FX031497",sn:""},
+{dt:"2026-03-16 13:03:31",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"AK055664",sn:""},
+{dt:"2026-03-17 15:43:48",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# 672 alarm",mode:"setup",note:"FX031395",sn:""},
+{dt:"2026-03-18 15:26:53",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"26542",sn:""},
+{dt:"2026-03-19 12:21:53",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 470 error",mode:"setup",note:"FX028787",sn:""},
+{dt:"2026-03-19 12:22:57",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 505error",mode:"treatment",note:"FX031397",sn:""},
+{dt:"2026-03-20 14:03:42",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 33 alarm",mode:"setup",note:"FX031413",sn:""},
+{dt:"2026-03-20 14:12:42",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 600793",sn:"600793"},
+{dt:"2026-03-23 12:49:09",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"setup",mode:"#0511 088 066 027 DIVA/TAVA test error, dialysis pressure outside limits",note:"s/n AK063707",sn:"AK063707"},
+{dt:"2026-03-23 14:19:11",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 61015063",sn:"61015063"},
+{dt:"2026-03-23 17:24:04",sender:"윤성효부장님",acc:"윤성효",time:"16:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# External leak",mode:"setup",note:"FX031413",sn:""},
+{dt:"2026-03-26 09:27:12",sender:"MnH 신상학 과장",acc:"신상학",time:"3/24",acct:"의료법인영서의료재단",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n AK074429",sn:"AK074429"},
+{dt:"2026-03-26 09:27:55",sender:"MnH 신상학 과장",acc:"신상학",time:"3/24",acct:"의료법인영서의료재단",typ:"repair",dev:"ak98",fault:"unstable conductivity",mode:"setup",note:"s/n AK074428",sn:"AK074428"},
+{dt:"2026-03-26 15:04:41",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"Disinfection",note:"26552",sn:""},
+{dt:"2026-03-26 15:54:51",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"Disinfection",note:"28495",sn:""},
+{dt:"2026-03-27 10:05:26",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"세종충남대병원",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX033434, FX033431"},
+{dt:"2026-03-27 10:10:22",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2026-03-25",acct:"청주성모병원",typ:"Repair",dev:"WRO 106 H",fault:"#7 Motorprotector WRO",mode:"",note:"S/N 1000902",sn:"1000902"},
+{dt:"2026-03-27 10:38:50",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2026-03-26",acct:"첼로병원",typ:"FCH",dev:"AK98",fault:"Customer requested",mode:"n/a",note:"S/N 75705",sn:"75705"},
+{dt:"2026-03-27 10:39:14",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2026-03-26",acct:"남궁요양병원",typ:"FCH",dev:"AK98",fault:"Customer requested",mode:"n/a",note:"S/N 55267",sn:"55267"},
+{dt:"2026-03-27 10:41:39",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"최지욱내과",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 6101292",sn:"6101292"},
+{dt:"2026-03-27 13:38:54",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2026-03-27",acct:"참편한365내과",typ:"Repair",dev:"Artis physio",fault:"#539",mode:"setup",note:"S/N FX025601",sn:"FX025601"},
+{dt:"2026-03-27 13:40:19",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"세종충남대병원",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX033432"},
+{dt:"2026-03-27 13:41:54",sender:"차병철대리/엠글로벌",acc:"차병철",time:"n/a",acct:"소신내과",typ:"PM2",dev:"Artis Physio",fault:"n/a",mode:"n/a",note:"",sn:"FX033911"},
+{dt:"2026-03-27 16:13:09",sender:"윤성효부장님",acc:"윤성효",time:"14:30",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"FX031212",sn:""},
+{dt:"2026-03-28 09:23:58",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# Unstable conductivity",mode:"setup",note:"AK053465",sn:""},
+{dt:"2026-03-30 09:36:17",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 672 alarm",mode:"setup",note:"FX035615",sn:""},
+{dt:"2026-03-30 09:37:13",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"최지욱내과",typ:"Repair",dev:"AK98",fault:"# Unstable conductivity",mode:"setup",note:"26985",sn:""},
+{dt:"2026-03-30 13:03:33",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2026-03-30",acct:"첼로병원",typ:"Repair",dev:"AK98",fault:"# Unstable conductivity",mode:"setup",note:"AK075707",sn:""},
+{dt:"2026-04-02 10:28:40",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"AK98",fault:"# Unstable conductivity",mode:"setup",note:"26467",sn:""},
+{dt:"2026-04-02 14:40:36",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2026-04-02 14:41:56",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"3.2.0 version upgrade",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n AK055815",sn:"AK055815"},
+{dt:"2026-04-02 16:30:28",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"AK98",fault:"#548 functional check is stopped",mode:"n/a",note:"s/n: AK062749",sn:"AK062749"},
+{dt:"2026-04-03 11:43:00",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 665error",mode:"Disinfection",note:"FX025505",sn:""},
+{dt:"2026-04-03 11:44:13",sender:"윤성효부장님",acc:"윤성효",time:"11:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# External leak",mode:"Disinfection",note:"FX031397",sn:""},
+{dt:"2026-04-03 13:42:11",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"AK98",fault:"#508 alarm",mode:"n/a",note:"s/n: AK062734",sn:"AK062734"},
+{dt:"2026-04-03 16:38:10",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"부여서울연합내과",typ:"Repair",dev:"AK98",fault:"#503 battery failure",mode:"n/a",note:"s/n: 18772",sn:"18772"},
+{dt:"2026-04-04 17:32:12",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 060 021",mode:"setup",note:"28447",sn:""},
+{dt:"2026-04-06 16:31:12",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"의료법인영서의료재단",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 61015189",sn:"61015189"},
+{dt:"2026-04-06 17:14:38",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"의료법인영서의료재단",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK074427, AK069605",sn:"AK074427, AK069605"},
+{dt:"2026-04-07 13:52:24",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2026-04-07",acct:"청주의료원",typ:"FCH",dev:"Artis physio",fault:"Customer requested",mode:"n/a",note:"S/N FX025513",sn:"FX025513"},
+{dt:"2026-04-07 14:26:58",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"효성병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"AK078584",sn:""},
+{dt:"2026-04-07 14:28:50",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"효성병원",typ:"FCH",dev:"AK98",fault:"Customer requested",mode:"n/a",note:"AK078582",sn:""},
+{dt:"2026-04-07 14:30:51",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"FCH",dev:"Artis physio",fault:"Customer requested",mode:"n/a",note:"FX037632",sn:""},
+{dt:"2026-04-08 08:42:55",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# 668 error",mode:"setup",note:"FX031420",sn:""},
+{dt:"2026-04-08 14:54:28",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"효성병원",typ:"Repair",dev:"AK98",fault:"# External leak",mode:"Disinfection",note:"AK078380",sn:""},
+{dt:"2026-04-08 16:12:44",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"AK054958",sn:""},
+{dt:"2026-04-08 16:14:04",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 503 Battery fail",mode:"setup",note:"26563",sn:""},
+{dt:"2026-04-09 10:23:23",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"#0511 088 095 029",mode:"setup",note:"AK055671",sn:""},
+{dt:"2026-04-09 18:47:46",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"AK98",fault:"#607 alarm",mode:"disinfection",note:"s/n: AK062751",sn:"AK062751"},
+{dt:"2026-04-10 09:15:30",sender:"MnH 신상학 과장",acc:"신상학",time:"4/9",acct:"의료법인영서의료재단",typ:"repair",dev:"ak98",fault:"external leak",mode:"disinfection",note:"s/n AK069605",sn:"AK069605"},
+{dt:"2026-04-10 13:58:26",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"Fch",dev:"CWP66",fault:"Customer requested filter (5micro)replacement",mode:"n/a",note:"s/n: 4338",sn:"4338"},
+{dt:"2026-04-10 13:59:45",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"repair",dev:"ak98",fault:"unstable conductivity",mode:"setup",note:"s/n 19453, 20038",sn:"19453, 20038"},
+{dt:"2026-04-10 15:22:00",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"AK055882",sn:""},
+{dt:"2026-04-10 15:23:05",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 088 021",mode:"setup",note:"AK055767",sn:""},
+{dt:"2026-04-13 12:39:52",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"효성병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"AK078587",sn:""},
+{dt:"2026-04-13 12:41:26",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 548 alarm",mode:"setup",note:"26499",sn:""},
+{dt:"2026-04-14 11:21:17",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224"},
+{dt:"2026-04-14 11:22:43",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"AK98",fault:"Customer requested",mode:"n/a",note:"AK055776",sn:""},
+{dt:"2026-04-14 11:23:48",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"}
+];
+
+var SQ='', AF='all', TF='all', OS={};
+
+document.getElementById('totalBadge').textContent = WO.length + ' WOs';
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hi(s,ws){
+  if(!ws||!ws.length) return esc(s);
+  var r=esc(s);
+  ws.forEach(function(w){
+    if(!w) return;
+    r=r.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');
+  });
+  return r;
+}
+
+function typeBadge(t){
+  if(!t||t.toLowerCase()==='n/a') return '';
+  var tl = t.toLowerCase();
+  var cls = 'b-other';
+  if(tl==='repair') cls='b-repair';
+  else if(tl.indexOf('fch')>=0) cls='b-fch';
+  else if(tl.indexOf('pm')>=0) cls='b-pm';
+  else if(tl.indexOf('install')>=0||tl.indexOf('설치')>=0) cls='b-install';
+  return '<span class="badge '+cls+'">'+esc(t)+'</span>';
+}
+
+function accBadge(a){
+  if(!a) return '<span class="badge b-other">미입력</span>';
+  return '<span class="badge b-acc">'+esc(a)+'</span>';
+}
+
+function fmtDate(dt){
+  if(!dt) return '';
+  return dt.substring(0,10);
+}
+function fmtTime(dt){
+  if(!dt) return '';
+  return dt.substring(11,16);
+}
+
+function render(list){
+  var ws = SQ ? SQ.trim().toLowerCase().split(/\s+/) : [];
+  var cardsEl = document.getElementById('cardsEl');
+  var emptyEl = document.getElementById('emptyEl');
+  var sbar = document.getElementById('sbarEl');
+
+  if(!list.length){
+    cardsEl.innerHTML='';cardsEl.style.display='none';emptyEl.style.display='block';
+    sbar.innerHTML='검색 결과 없음';
+    return;
+  }
+  cardsEl.style.display='';emptyEl.style.display='none';
+
+  if(SQ||AF!=='all'||TF!=='all'){
+    sbar.innerHTML='<b>'+list.length+'</b>건 검색됨 (전체 '+WO.length+'건)';
+  } else {
+    sbar.innerHTML='전체 <b>'+WO.length+'</b>건';
+  }
+
+  cardsEl.innerHTML = list.map(function(w, idx){
+    var key = 'w'+idx;
+    var isOpen = OS[key];
+    var hasSerial = w.sn && w.sn.toLowerCase()!=='n/a';
+    var hasFault  = w.fault && w.fault.toLowerCase()!=='n/a';
+
+    return '<div class="card">'+
+      '<div class="chead" onclick="toggle(\''+key+'\')">'+
+        '<span class="wo-num">'+esc(String(idx+1).padStart(3,'0'))+'</span>'+
+        '<div class="cbody">'+
+          '<div class="ctitle">'+hi(w.acct||'(거래처 미입력)',ws)+' <span style="font-weight:400;color:var(--text3)">·</span> '+hi(w.dev||'—',ws)+'</div>'+
+          '<div class="cmeta">'+
+            accBadge(w.acc)+
+            typeBadge(w.typ)+
+            '<span class="badge b-date">'+esc(fmtDate(w.dt))+' '+esc(fmtTime(w.dt))+'</span>'+
+            (hasSerial ? '<span class="badge" style="background:var(--euca-light);color:var(--pine);font-family:monospace;">'+esc(w.sn)+'</span>' : '')+
+          '</div>'+
+        '</div>'+
+        '<div class="chev'+(isOpen?' open':'')+'" id="chev_'+key+'">▾</div>'+
+      '</div>'+
+      '<div class="cdet'+(isOpen?' open':'')+'" id="det_'+key+'">'+
+        '<div class="cdet-in">'+
+          '<div class="drow"><span class="dlbl">접수자</span><span class="dval">'+hi(w.acc||'—',ws)+'</span></div>'+
+          '<div class="drow"><span class="dlbl">발생시간</span><span class="dval">'+esc(fmtDate(w.dt))+' '+esc(w.time&&w.time!=='n/a'?w.time:fmtTime(w.dt))+'</span></div>'+
+          '<div class="drow"><span class="dlbl">거래처</span><span class="dval">'+hi(w.acct||'—',ws)+'</span></div>'+
+          '<div class="drow"><span class="dlbl">점검유형</span><span class="dval">'+esc(w.typ||'—')+'</span></div>'+
+          '<div class="drow"><span class="dlbl">장비명</span><span class="dval">'+hi(w.dev||'—',ws)+'</span></div>'+
+          (hasFault ? '<div class="drow"><span class="dlbl">고장내용</span><span class="dval">'+hi(w.fault,ws)+'</span></div>' : '')+
+          (w.mode&&w.mode!=='n/a' ? '<div class="drow"><span class="dlbl">고장모드</span><span class="dval">'+esc(w.mode)+'</span></div>' : '')+
+          (w.note&&w.note!=='n/a' ? '<div class="drow"><span class="dlbl">전달사항</span><span class="dval">'+hi(w.note,ws)+'</span></div>' : '')+
+          (hasSerial ? '<div class="divider-arrow"><span>Serial No.</span></div><div class="drow"><span class="dval highlight">'+hi(w.sn,ws)+'</span></div>' : '')+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function toggle(key){
+  var det=document.getElementById('det_'+key);
+  var chev=document.getElementById('chev_'+key);
+  if(!det) return;
+  if(OS[key]){OS[key]=0;det.classList.remove('open');if(chev)chev.classList.remove('open');}
+  else{OS[key]=1;det.classList.add('open');if(chev)chev.classList.add('open');}
+}
+
+function go(){
+  var ws = SQ ? SQ.trim().toLowerCase().split(/\s+/) : [];
+  var list = WO.slice().reverse(); // newest first
+  if(AF!=='all') list=list.filter(function(w){ return w.acc===AF; });
+  if(TF!=='all'){
+    list=list.filter(function(w){
+      var t=(w.typ||'').toLowerCase();
+      if(TF==='repair') return t==='repair';
+      if(TF==='fch') return t.indexOf('fch')>=0;
+      if(TF==='pm') return t.indexOf('pm')>=0&&t.indexOf('fch')<0;
+      if(TF==='install') return t.indexOf('install')>=0||t.indexOf('설치')>=0;
+      return true;
+    });
+  }
+  if(ws.length){
+    list=list.filter(function(w){
+      var h=[w.acct,w.dev,w.fault,w.note,w.sn,w.acc,w.typ].join(' ').toLowerCase();
+      return ws.every(function(ww){ return h.indexOf(ww)>=0; });
+    });
+  }
+  OS={};
+  render(list);
+}
+
+// Filters
+document.getElementById('accRow').addEventListener('click',function(e){
+  var b=e.target;while(b&&!b.classList.contains('seg'))b=b.parentElement;
+  if(!b)return;
+  document.querySelectorAll('#accRow .seg').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');AF=b.getAttribute('data-v');go();
+});
+document.getElementById('typRow').addEventListener('click',function(e){
+  var b=e.target;while(b&&!b.classList.contains('seg'))b=b.parentElement;
+  if(!b)return;
+  document.querySelectorAll('#typRow .seg').forEach(function(x){x.classList.remove('on');});
+  b.classList.add('on');TF=b.getAttribute('data-v');go();
+});
+var sInp=document.getElementById('sInp');
+var sClr=document.getElementById('sClr');
+sInp.addEventListener('input',function(){SQ=sInp.value;sClr.className=SQ.length?'s-clr show':'s-clr';go();});
+sClr.addEventListener('click',function(){sInp.value='';SQ='';sClr.className='s-clr';go();});
+
+// Stats
+function renderStats(){
+  var el=document.getElementById('statsPanelInner');
+  var total=WO.length;
+  // Acceptor counts
+  var accMap={};
+  WO.forEach(function(w){ var a=w.acc||'미입력'; accMap[a]=(accMap[a]||0)+1; });
+  var accs=Object.keys(accMap).sort(function(a,b){return accMap[b]-accMap[a];});
+  var colors=['#72256B','#105742','#6CA07A','#D4700A'];
+
+  // Type counts
+  var typMap={};
+  WO.forEach(function(w){
+    var t=(w.typ||'기타').toLowerCase();
+    var k = t==='repair'?'Repair':t.indexOf('fch')>=0?'FCH':t.indexOf('pm')>=0?'PM/FCH':t.indexOf('install')>=0?'Installation':'기타';
+    typMap[k]=(typMap[k]||0)+1;
+  });
+
+  // Monthly breakdown
+  var moMap={};
+  WO.forEach(function(w){
+    var ym=w.dt.substring(0,7);
+    if(!moMap[ym]) moMap[ym]={};
+    var a=w.acc||'미입력';
+    moMap[ym][a]=(moMap[ym][a]||0)+1;
+  });
+  var months=Object.keys(moMap).sort();
+
+  var html = '';
+
+  // KPIs
+  var repairCnt=WO.filter(function(w){return (w.typ||'').toLowerCase()==='repair';}).length;
+  var accts=new Set(WO.map(function(w){return w.acct;})).size;
+  html += '<div class="kpi-row">'+
+    '<div class="kpi"><div class="kpi-val">'+total+'</div><div class="kpi-lbl">Total WO</div></div>'+
+    '<div class="kpi"><div class="kpi-val" style="color:var(--danger)">'+repairCnt+'</div><div class="kpi-lbl">Repair</div></div>'+
+    '<div class="kpi"><div class="kpi-val" style="color:var(--pine)">'+accts+'</div><div class="kpi-lbl">거래처</div></div>'+
+  '</div>';
+
+  // Acceptor bars
+  html += '<div class="stat-section"><div class="stat-hdr">접수자별 통계</div><div class="stat-card">';
+  accs.forEach(function(a,i){
+    var cnt=accMap[a];
+    var pct=(cnt/total*100).toFixed(1);
+    var barW=Math.round(cnt/accMap[accs[0]]*100);
+    var col=colors[i%colors.length];
+    html += '<div class="stat-row">'+
+      '<span class="stat-name">'+esc(a)+'</span>'+
+      '<div class="stat-bar-wrap"><div class="stat-bar" style="width:'+barW+'%;background:'+col+'"><span>'+cnt+'</span></div></div>'+
+      '<span class="stat-cnt" style="color:'+col+'">'+cnt+'</span>'+
+      '<span class="stat-pct">'+pct+'%</span>'+
+    '</div>';
+  });
+  html += '</div></div>';
+
+  // Type breakdown
+  html += '<div class="stat-section"><div class="stat-hdr">점검유형별 통계</div><div class="stat-card">';
+  var typKeys=Object.keys(typMap).sort(function(a,b){return typMap[b]-typMap[a];});
+  var typColors={'Repair':'#C0392B','FCH':'#D4700A','PM/FCH':'#105742','Installation':'#6CA07A','기타':'#A1A1AA'};
+  typKeys.forEach(function(k){
+    var cnt=typMap[k];
+    var pct=(cnt/total*100).toFixed(1);
+    var barW=Math.round(cnt/typMap[typKeys[0]]*100);
+    var col=typColors[k]||'#A1A1AA';
+    html += '<div class="stat-row">'+
+      '<span class="stat-name" style="min-width:90px;">'+esc(k)+'</span>'+
+      '<div class="stat-bar-wrap"><div class="stat-bar" style="width:'+barW+'%;background:'+col+'"><span>'+cnt+'</span></div></div>'+
+      '<span class="stat-cnt" style="color:'+col+'">'+cnt+'</span>'+
+      '<span class="stat-pct">'+pct+'%</span>'+
+    '</div>';
+  });
+  html += '</div></div>';
+
+  // Monthly table
+  html += '<div class="stat-section"><div class="stat-hdr">월별 접수 현황</div>'+
+    '<div class="stat-card" style="padding:0;overflow:auto;">'+
+    '<table class="mo-table"><thead><tr>'+
+    '<th>월</th>';
+  accs.forEach(function(a){ html += '<th>'+esc(a)+'</th>'; });
+  html += '<th>합계</th></tr></thead><tbody>';
+  var monthTotal=new Array(accs.length).fill(0), grandTotal=0;
+  months.forEach(function(ym){
+    var rowSum=0;
+    html += '<tr><td>'+esc(ym)+'</td>';
+    accs.forEach(function(a,i){
+      var n=moMap[ym][a]||0;
+      rowSum+=n; monthTotal[i]+=n;
+      var col=n>0?colors[i%colors.length]:'';
+      html += '<td>'+(n>0?'<span class="mo-cell" style="background:'+col+'22;color:'+col+';">'+n+'</span>':'<span style="color:var(--text3)">—</span>')+'</td>';
+    });
+    grandTotal+=rowSum;
+    html += '<td><b>'+rowSum+'</b></td></tr>';
+  });
+  html += '<tr style="background:rgba(114,37,107,0.04)"><td><b>합계</b></td>';
+  monthTotal.forEach(function(n,i){
+    var col=colors[i%colors.length];
+    html += '<td><span class="mo-cell" style="background:'+col+'22;color:'+col+';">'+n+'</span></td>';
+  });
+  html += '<td><b>'+grandTotal+'</b></td></tr>';
+  html += '</tbody></table></div></div>';
+
+  el.innerHTML = html;
+}
+
+function switchTab(tab, el){
+  document.querySelectorAll('.bnav-item').forEach(function(b){b.classList.remove('on');});
+  if(el) el.classList.add('on');
+  var isSearch = tab==='search';
+  document.getElementById('filtEl').style.display = isSearch ? '' : 'none';
+  document.getElementById('sbarEl').style.display = isSearch ? '' : 'none';
+  document.getElementById('searchPanel').classList.toggle('on', isSearch);
+  document.getElementById('statsPanel').classList.toggle('on', tab==='stats');
+  if(tab==='stats') renderStats();
+  if(isSearch) go();
+}
+
+go();
+</script>
+</body>
+</html>
