@@ -57,7 +57,7 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 
 /* ── Filters ── */
 .filt{background:var(--cream);padding:10px 16px;border-bottom:1px solid var(--border);}
-.flbl{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1.6px;text-transform:uppercase;margin-bottom:6px;font-family:"Arial Black",Arial,sans-serif;}
+.flbl{font-size:11px;font-weight:800;color:var(--pine);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;font-family:"Arial Black",Arial,sans-serif;display:flex;align-items:center;gap:5px;}
 .seg-row{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
 .seg-row::-webkit-scrollbar{display:none;}
 .seg{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
@@ -93,6 +93,8 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .b-repair{background:var(--danger-light);color:var(--danger);}
 .b-fch{background:var(--amber-light);color:var(--amber);}
 .b-pm{background:var(--pine-light);color:var(--pine);}
+.b-pm2{background:#d0eae3;color:#0a5c3a;}
+.b-basekit{background:#e8d5f0;color:#5a1f70;}
 .b-install{background:var(--euca-light);color:#0a6b4e;}
 .b-other{background:rgba(0,0,0,0.05);color:var(--text3);}
 .b-date{background:rgba(0,0,0,0.04);color:var(--text3);font-family:monospace;font-size:10px;}
@@ -121,10 +123,11 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 /* ── Stats Panel ── */
 .stats-panel{padding:16px 14px 24px;}
 .stat-section{margin-bottom:20px;}
-.stat-hdr{font-size:10px;font-weight:800;color:var(--pine);letter-spacing:1.6px;
-  text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;
+.stat-hdr{font-size:12px;font-weight:800;color:var(--pine);letter-spacing:0.8px;
+  text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;
   border-bottom:2px solid var(--euca-light);
-  font-family:"Arial Black",Arial,sans-serif;}
+  font-family:"Arial Black",Arial,sans-serif;display:flex;align-items:center;gap:6px;}
+.stat-hdr svg{width:14px;height:14px;flex-shrink:0;stroke:var(--pine);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .stat-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);
   border:1px solid var(--border);padding:16px 18px;margin-bottom:10px;}
 .stat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
@@ -219,6 +222,66 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .mo-stat-pct{font-size:11px;color:var(--text3);min-width:38px;text-align:right;}
 
 mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;padding:0 1px;}
+
+/* ── By Customer Table ── */
+.cust-panel{padding:14px 0 100px;}
+.cust-top{padding:0 14px 10px;}
+.cust-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.cust-table{border-collapse:collapse;font-size:12px;width:100%;}
+.cust-table th{
+  padding:8px 10px;font-size:10px;font-weight:800;letter-spacing:0.6px;
+  text-transform:uppercase;white-space:nowrap;text-align:center;
+  background:var(--sage,#CDDFD7);color:var(--pine);border-bottom:2px solid rgba(16,87,66,0.25);
+  font-family:"Arial Black",Arial,sans-serif;position:sticky;top:0;z-index:2;}
+.cust-table th.th-fix{position:sticky;left:0;z-index:3;text-align:left;}
+.cust-table td{
+  padding:7px 10px;border-bottom:1px solid var(--border);
+  text-align:center;background:var(--white);vertical-align:middle;}
+.cust-table td.td-fix{
+  position:sticky;left:0;z-index:1;background:var(--white);
+  text-align:left;font-weight:600;color:var(--text);
+  white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+/* Manager header row */
+.cust-acc td{font-weight:800;font-size:12px;letter-spacing:0.3px;
+  font-family:"Arial Black",Arial,sans-serif;color:#fff;border-bottom:none;}
+.cust-acc td.td-fix{color:#fff;}
+/* Subtotal row */
+.cust-sub td{font-weight:700;font-size:12px;border-top:1.5px solid rgba(0,0,0,0.12);}
+/* Grand total row */
+.cust-grand td{background:var(--plum-light)!important;color:var(--plum)!important;
+  font-weight:800;font-size:13px;border-top:2px solid var(--plum);
+  font-family:"Arial Black",Arial,sans-serif;}
+/* Number cells */
+.cn{font-family:monospace;font-weight:700;}
+.cn.z{color:#ccc;font-weight:400;}
+.cn.t{color:var(--plum);font-weight:800;}
+/* Kpi strip */
+.cust-kpi{display:flex;gap:8px;padding:0 14px 12px;overflow-x:auto;scrollbar-width:none;}
+.cust-kpi::-webkit-scrollbar{display:none;}
+.ck{background:var(--white);border:1px solid var(--border);border-radius:12px;
+  padding:10px 14px;text-align:center;flex-shrink:0;min-width:80px;box-shadow:var(--shadow);}
+.ck-v{font-size:20px;font-weight:900;color:var(--plum);font-family:"Arial Black",Arial,sans-serif;line-height:1;}
+.ck-l{font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-top:3px;}
+
+/* ── Charts ── */
+.chart-section{margin-bottom:14px;}
+.chart-hdr{font-size:11px;font-weight:800;color:var(--pine);letter-spacing:0.8px;
+  text-transform:uppercase;margin-bottom:8px;font-family:"Arial Black",Arial,sans-serif;display:flex;align-items:center;gap:5px;}
+.chart-hdr svg{width:13px;height:13px;flex-shrink:0;stroke:var(--pine);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.chart-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);
+  border:1px solid var(--border);padding:14px 14px 10px;}
+.chart-scroll{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.chart-scroll::-webkit-scrollbar{display:none;}
+.donut-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.donut-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);
+  border:1px solid var(--border);padding:12px 10px 12px;text-align:center;}
+.donut-title{font-size:11px;font-weight:800;color:var(--pine);letter-spacing:0.8px;
+  text-transform:uppercase;margin-bottom:10px;font-family:"Arial Black",Arial,sans-serif;}
+.donut-legend{display:flex;flex-direction:column;gap:4px;margin-top:10px;text-align:left;}
+.donut-leg-row{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);}
+.donut-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.donut-leg-name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.donut-leg-cnt{font-family:monospace;font-weight:700;color:var(--text);}
 </style>
 </head>
 <body>
@@ -254,17 +317,17 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
 <!-- Filters -->
 <div class="filt" id="filtEl">
   <div class="frow" id="yrFrow">
-    <div class="flbl">년도</div>
+    <div class="flbl"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>년도</div>
     <div class="mo-filter-row" id="yrRow">
       <button class="mo-chip on" data-v="all">전체</button>
     </div>
   </div>
   <div class="frow" id="moFrow" style="display:none;">
-    <div class="flbl">월</div>
+    <div class="flbl"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>월</div>
     <div class="mo-filter-row" id="moRow"></div>
   </div>
   <div class="frow">
-    <div class="flbl">접수자</div>
+    <div class="flbl"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>접수자</div>
     <div class="seg-row" id="accRow">
       <button class="seg on" data-v="all">전체</button>
       <button class="seg" data-v="윤성효">윤성효</button>
@@ -273,11 +336,13 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
     </div>
   </div>
   <div class="frow">
-    <div class="flbl">점검유형</div>
+    <div class="flbl"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>점검유형</div>
     <div class="seg-row" id="typRow">
       <button class="seg on" data-v="all">전체</button>
       <button class="seg" data-v="repair">Repair</button>
       <button class="seg" data-v="fch">FCH</button>
+      <button class="seg" data-v="pm2">PM2</button>
+      <button class="seg" data-v="basekit">Base Kit PM</button>
       <button class="seg" data-v="pm">PM</button>
       <button class="seg" data-v="install">Install</button>
     </div>
@@ -303,6 +368,11 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
   <div class="stats-panel" id="statsPanelInner"></div>
 </div>
 
+<!-- By Customer Tab -->
+<div class="tab-panel" id="custPanel">
+  <div class="cust-panel" id="custPanelInner"></div>
+</div>
+
 <!-- Bottom Nav -->
 <nav class="bnav">
   <button class="bnav-item on" onclick="switchTab('search',this)">
@@ -316,7 +386,16 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
       <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
       <line x1="6" y1="20" x2="6" y2="14"/>
     </svg>
-    <span class="bnav-label">Stats</span>
+    <span class="bnav-label">Status</span>
+  </button>
+  <button class="bnav-item" onclick="switchTab('customer',this)">
+    <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+    <span class="bnav-label">Customer</span>
   </button>
 </nav>
 
@@ -358,8 +437,8 @@ var WO=[
 {dt:"2025-09-12 19:40:56",sender:"윤성효부장님",acc:"윤성효",time:"17:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"#607 alarm",mode:"Disinfection",note:"s/n: 27056",sn:"27056"},
 {dt:"2025-09-16 09:38:40",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101485",sn:"6101485"},
 {dt:"2025-09-16 09:40:28",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter (U9000) replacement",mode:"n/a",note:"s/n: AK 060770",sn:"AK 060770"},
-{dt:"2025-09-16 09:51:55",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK056205",sn:"AK056205"},
-{dt:"2025-09-16 09:52:29",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK055300",sn:"AK055300"},
+{dt:"2025-09-16 09:51:55",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base Kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK056205",sn:"AK056205"},
+{dt:"2025-09-16 09:52:29",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"남궁요양병원",typ:"Base Kit PM",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK055300",sn:"AK055300"},
 {dt:"2025-09-17 08:10:30",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"repair",dev:"AK98",fault:"0504 014 001 072",mode:"Disinfection",note:"s/n: 27116",sn:"27116"},
 {dt:"2025-09-17 08:12:48",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"repair",dev:"Artis physio",fault:"Broken(Bicart holder broken)",mode:"setup",note:"s/n: FX031412",sn:"FX031412"},
 {dt:"2025-09-18 09:52:00",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"이화병원",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK069316",sn:"AK069316"},
@@ -463,7 +542,7 @@ var WO=[
 {dt:"2025-11-29 15:12:39",sender:"윤성효부장님",acc:"윤성효",time:"12:30",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"# 35 error",mode:"setup",note:"s/n FX031415",sn:"FX031415"},
 {dt:"2025-11-29 15:14:25",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"단국대병원",typ:"repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"s/n FX031105",sn:"FX031105"},
 {dt:"2025-12-01 13:04:51",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"엄재호내과",typ:"repair",dev:"AK98",fault:"# 557 alarm",mode:"setup",note:"s/n 26507",sn:"26507"},
-{dt:"2025-12-01 13:41:15",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-11-26",acct:"김재하내과",typ:"PM",dev:"AK98",fault:"",mode:"",note:"013929",sn:""},
+{dt:"2025-12-01 13:41:15",sender:"차병철대리/엠글로벌",acc:"차병철",time:"2025-11-26",acct:"김재하내과",typ:"Base Kit PM",dev:"AK98",fault:"",mode:"",note:"013929",sn:""},
 {dt:"2025-12-01 15:23:21",sender:"윤성효부장님",acc:"윤성효",time:"13:30",acct:"단국대병원",typ:"repair",dev:"prismaflex",fault:"# scale fail",mode:"setup",note:"s/n PA5976",sn:"PA5976"},
 {dt:"2025-12-04 11:11:15",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98(4대)",fault:"n/a",mode:"n/a",note:"s/n: AK078862, AK078868, AK078865,",sn:"AK078862, AK078868, AK078865"},
 {dt:"2025-12-04 11:20:03",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"임채남내과",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK078867, AK078870, AK078860,",sn:"AK078867, AK078870, AK078860"},
@@ -699,6 +778,13 @@ var WO=[
 {dt:"2026-04-14 11:23:48",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996"}
 ];
 
+// Auto-normalize: AK98 장비의 PM은 Base Kit PM으로 처리
+WO.forEach(function(w){
+  if((w.dev||'').toLowerCase().indexOf('ak98')>=0 && (w.typ||'').trim().toLowerCase()==='pm'){
+    w.typ = 'Base Kit PM';
+  }
+});
+
 var SQ='', AF='all', TF='all', MF='all', OS={}, CUR_PAGE=1, PAGE_SIZE=20, FILTERED_LIST=[];
 
 document.getElementById('totalBadge').textContent = WO.length + ' WOs';
@@ -720,6 +806,8 @@ function typeBadge(t){
   var cls = 'b-other';
   if(tl==='repair') cls='b-repair';
   else if(tl.indexOf('fch')>=0) cls='b-fch';
+  else if(tl.indexOf('pm2')>=0) cls='b-pm2';
+  else if(tl.indexOf('base kit')>=0) cls='b-basekit';
   else if(tl.indexOf('pm')>=0) cls='b-pm';
   else if(tl.indexOf('install')>=0||tl.indexOf('설치')>=0) cls='b-install';
   return '<span class="badge '+cls+'">'+esc(t)+'</span>';
@@ -857,7 +945,9 @@ function go(){
       var t=(w.typ||'').toLowerCase();
       if(TF==='repair') return t==='repair';
       if(TF==='fch') return t.indexOf('fch')>=0;
-      if(TF==='pm') return t.indexOf('pm')>=0&&t.indexOf('fch')<0;
+      if(TF==='pm2') return t.indexOf('pm2')>=0;
+      if(TF==='basekit') return t.indexOf('base kit')>=0;
+      if(TF==='pm') return t==='pm'||t==='pm '||t.trim()==='pm';
       if(TF==='install') return t.indexOf('install')>=0||t.indexOf('설치')>=0;
       return true;
     });
@@ -968,6 +1058,118 @@ function toggleStatAcc(ym){
   if(chev) chev.classList.toggle('open', isOpen);
 }
 
+/* ── Canvas chart helpers ── */
+function initCanvas(id, w, h){
+  var c=document.getElementById(id);
+  if(!c) return null;
+  var dpr=window.devicePixelRatio||1;
+  c.width=w*dpr; c.height=h*dpr;
+  c.style.width=w+'px'; c.style.height=h+'px';
+  var ctx=c.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return ctx;
+}
+
+function drawTrendChart(moData){
+  var months=Object.keys(moData).sort();
+  var wrap=document.getElementById('trendWrap');
+  if(!wrap) return;
+  var colW=Math.max(52, Math.floor((wrap.offsetWidth||320)/months.length));
+  var W=Math.max(colW*months.length, wrap.offsetWidth||320);
+  var H=200;
+  var ctx=initCanvas('trendChart',W,H);
+  if(!ctx) return;
+
+  var PL=38,PR=10,PT=28,PB=56;
+  var cW=W-PL-PR, cH=H-PT-PB;
+  var maxV=Math.max.apply(null,months.map(function(m){return moData[m].total;}))||1;
+  var niceMax=Math.ceil(maxV/5)*5||5;
+
+  // grid
+  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=0.8;
+  for(var g=0;g<=4;g++){
+    var gy=PT+cH*(1-g/4);
+    ctx.beginPath(); ctx.moveTo(PL,gy); ctx.lineTo(PL+cW,gy); ctx.stroke();
+    ctx.fillStyle='#bbb'; ctx.font='11px Arial'; ctx.textAlign='right';
+    ctx.fillText(Math.round(niceMax*g/4),PL-4,gy+4);
+  }
+
+  var bW=cW/months.length, bPad=Math.max(bW*0.2,4), abW=bW-bPad*2;
+  var prevYear='';
+  months.forEach(function(ym,i){
+    var val=moData[ym].total;
+    var bH=(val/niceMax)*cH;
+    var x=PL+i*bW+bPad;
+    var y=PT+cH-bH;
+    var parts=ym.split('-');
+
+    // bar
+    ctx.fillStyle='rgba(114,37,107,0.82)';
+    ctx.fillRect(x,y,abW,bH);
+
+    // value
+    ctx.textAlign='center';
+    if(bH>22){
+      ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.font='bold 18px Arial';
+      ctx.fillText(val,x+abW/2,y+16);
+    } else {
+      ctx.fillStyle='#72256B'; ctx.font='bold 18px Arial';
+      ctx.fillText(val,x+abW/2,y-5);
+    }
+
+    // month label
+    ctx.fillStyle='#999'; ctx.font='18px Arial';
+    ctx.fillText(parts[1]+'월',x+abW/2,PT+cH+20);
+
+    // year label (on change)
+    if(parts[0]!==prevYear){
+      prevYear=parts[0];
+      ctx.fillStyle='rgba(114,37,107,0.75)'; ctx.font='bold 16px Arial';
+      ctx.textAlign='left';
+      ctx.fillText(parts[0],x,PT+cH+42);
+    }
+  });
+
+  // axes
+  ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
+}
+
+function drawDonut(id, dataMap, colorMap){
+  var size=110;
+  var ctx=initCanvas(id,size,size);
+  if(!ctx) return;
+  var cx=size/2, cy=size/2;
+  var outerR=size/2-6, innerR=outerR*0.56;
+  var keys=Object.keys(dataMap).filter(function(k){return dataMap[k]>0;});
+  var total=keys.reduce(function(s,k){return s+dataMap[k];},0);
+  if(!total) return;
+
+  var gap=keys.length>1?0.03:0;
+  var startA=-Math.PI/2;
+  keys.forEach(function(k){
+    var angle=(dataMap[k]/total)*(Math.PI*2-gap*keys.length);
+    ctx.beginPath();
+    ctx.arc(cx,cy,outerR,startA,startA+angle);
+    ctx.arc(cx,cy,innerR,startA+angle,startA,true);
+    ctx.closePath();
+    ctx.fillStyle=colorMap[k]||'#A1A1AA';
+    ctx.fill();
+    startA+=angle+gap;
+  });
+
+  // hole fill
+  ctx.beginPath(); ctx.arc(cx,cy,innerR,0,Math.PI*2);
+  ctx.fillStyle='#fff'; ctx.fill();
+
+  // center text
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='#72256B'; ctx.font='bold 16px "Arial Black",Arial';
+  ctx.fillText(total,cx,cy-6);
+  ctx.fillStyle='#aaa'; ctx.font='9px Arial';
+  ctx.fillText('건',cx,cy+9);
+}
+
 function buildBars(dataMap, total, colors, nameWidth){
   var keys = Object.keys(dataMap).sort(function(a,b){return dataMap[b]-dataMap[a];});
   var maxVal = dataMap[keys[0]] || 1;
@@ -991,11 +1193,17 @@ function renderStats(){
   var el=document.getElementById('statsPanelInner');
   var total=WO.length;
   var colors=['#72256B','#105742','#6CA07A','#D4700A'];
-  var typColors={'Repair':'#C0392B','FCH':'#D4700A','PM/FCH':'#105742','PM':'#105742','Installation':'#6CA07A','기타':'#A1A1AA'};
+  var typColors={'Repair':'#C0392B','FCH':'#D4700A','PM2':'#0a5c3a','Base Kit PM':'#5a1f70','PM':'#105742','Installation':'#6CA07A','기타':'#A1A1AA'};
 
   function normType(t){
     var tl=(t||'').toLowerCase();
-    return tl==='repair'?'Repair':tl.indexOf('fch')>=0?'FCH':tl.indexOf('pm')>=0?'PM':tl.indexOf('install')>=0?'Installation':'기타';
+    if(tl==='repair') return 'Repair';
+    if(tl.indexOf('fch')>=0) return 'FCH';
+    if(tl.indexOf('pm2')>=0) return 'PM2';
+    if(tl.indexOf('base kit')>=0) return 'Base Kit PM';
+    if(tl.indexOf('pm')>=0) return 'PM';
+    if(tl.indexOf('install')>=0) return 'Installation';
+    return '기타';
   }
 
   var accMap={}, typMap={}, moData={};
@@ -1024,18 +1232,57 @@ function renderStats(){
     '<div class="kpi"><div class="kpi-val" style="color:var(--pine)">'+accts+'</div><div class="kpi-lbl">거래처</div></div>'+
   '</div>';
 
+  // ── Monthly Trend Chart ──
+  var icoTrend='<svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>';
+  html += '<div class="chart-section"><div class="chart-hdr">'+icoTrend+'월별 WO 추이</div>'+
+    '<div class="chart-card" style="padding:14px 12px 10px;">'+
+      '<div class="chart-scroll" id="trendWrap"><canvas id="trendChart"></canvas></div>'+
+    '</div></div>';
+
+  // ── Donut Charts ──
+  // Build legend HTML helper
+  function makeLegend(dataMap, colorMap){
+    var keys=Object.keys(dataMap).filter(function(k){return dataMap[k]>0;})
+      .sort(function(a,b){return dataMap[b]-dataMap[a];});
+    var tot=keys.reduce(function(s,k){return s+dataMap[k];},0);
+    return keys.map(function(k){
+      return '<div class="donut-leg-row">'+
+        '<div class="donut-leg-dot" style="background:'+(colorMap[k]||'#A1A1AA')+'"></div>'+
+        '<span class="donut-leg-name">'+esc(k)+'</span>'+
+        '<span class="donut-leg-cnt">'+dataMap[k]+'</span>'+
+      '</div>';
+    }).join('');
+  }
+
+  html += '<div class="donut-grid">'+
+    '<div class="donut-card">'+
+      '<div class="donut-title">점검유형</div>'+
+      '<canvas id="typeDonut" style="display:block;margin:0 auto;"></canvas>'+
+      '<div class="donut-legend">'+makeLegend(typMap,typColors)+'</div>'+
+    '</div>'+
+    '<div class="donut-card">'+
+      '<div class="donut-title">접수자</div>'+
+      '<canvas id="accDonut" style="display:block;margin:0 auto;"></canvas>'+
+      '<div class="donut-legend">'+makeLegend(accMap,{'윤성효':'#72256B','신상학':'#105742','차병철':'#6CA07A','미입력':'#A1A1AA'})+'</div>'+
+    '</div>'+
+  '</div>';
+
   // ── Overall: Acceptor bars ──
-  html += '<div class="stat-section"><div class="stat-hdr">전체 · 접수자별 통계</div><div class="stat-card">';
+  var icoPerson='<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+  var icoType='<svg viewBox="0 0 24 24"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>';
+  var icoCalendar='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+
+  html += '<div class="stat-section"><div class="stat-hdr">'+icoPerson+'접수자별 상세</div><div class="stat-card">';
   html += buildBars(accMap, total, colors, 70);
   html += '</div></div>';
 
   // ── Overall: Type bars ──
-  html += '<div class="stat-section"><div class="stat-hdr">전체 · 점검유형별 통계</div><div class="stat-card">';
+  html += '<div class="stat-section"><div class="stat-hdr">'+icoType+'점검유형별 상세</div><div class="stat-card">';
   html += buildBars(typMap, total, typColors, 90);
   html += '</div></div>';
 
   // ── Monthly accordion ──
-  html += '<div class="stat-section"><div class="stat-hdr">년월별 상세 통계</div>';
+  html += '<div class="stat-section"><div class="stat-hdr">'+icoCalendar+'년월별 상세 통계</div>';
   months.forEach(function(ym){
     var mo = moData[ym];
     var parts = ym.split('-');
@@ -1070,6 +1317,138 @@ function renderStats(){
   html += '</div>';
 
   el.innerHTML = html;
+
+  // Draw charts after DOM insertion
+  requestAnimationFrame(function(){
+    drawTrendChart(moData);
+    drawDonut('typeDonut', typMap, typColors);
+    var accColors={'윤성효':'#72256B','신상학':'#105742','차병철':'#6CA07A','미입력':'#A1A1AA'};
+    drawDonut('accDonut', accMap, accColors);
+  });
+}
+
+/* ── By Customer (hard-coded reference data) ── */
+// Columns: [AK98, PHOENIX, Artis Physio, Artis Physio+, PRISMAFlex, PrisMax, Prisma Comfort, TherMax, PRISMAFlo, CWP, WRO300H, WRO300]
+var COLS=['AK98','PHOENIX','Artis Physio','Artis Physio+','PRISMAFlex','PrisMax','Prisma Comfort','TherMax','PRISMAFlo','CWP','WRO300H','WRO300'];
+var CUST_DATA=[
+  { acc:'신상학', color:'#72256B',
+    rows:[
+      {n:'서산조은내과',    v:[40,0,0,0,0,0,0,0,0,1,0,0], ec:false, t:41},
+      {n:'부여서울연합내과',v:[16,0,0,0,0,0,0,0,0,1,0,0], ec:false, t:17},
+      {n:'충무병원',        v:[21,0,0,0,3,0,3,0,0,1,2,0], ec:false, t:30},
+      {n:'박영선내과',      v:[38,0,0,0,0,0,0,0,0,1,0,0], ec:false, t:39},
+      {n:'김재하내과',      v:[7, 0,0,0,0,0,0,0,0,0,0,0], ec:true,  t:7},
+      {n:'이화병원',        v:[29,0,0,0,0,0,0,0,0,1,0,0], ec:false, t:30}
+    ],
+    sub:[151,0,0,0,3,0,3,0,0,5,2,0], subT:164,
+    ew:[151,3,3,7], ewT:161
+  },
+  { acc:'차병철', color:'#105742',
+    rows:[
+      {n:'인곡자애병원',  v:[8, 0, 0,0,0,0,0,0,0,1,0,0], ec:false, t:9},
+      {n:'남궁요양병원',  v:[19,0, 0,0,0,0,0,0,0,1,0,0], ec:false, t:20},
+      {n:'청주성모병원',  v:[39,0, 4,0,2,2,2,0,2,2,0,2], ec:false, t:55},
+      {n:'청주의료원',    v:[0, 0,21,0,1,0,1,0,0,1,1,0], ec:false, t:25},
+      {n:'체로병원',      v:[20,0, 0,0,0,0,0,0,0,0,0,0], ec:true,  t:20},
+      {n:'참편한365내과', v:[0, 0,21,0,0,0,0,0,0,1,0,0], ec:false, t:22}
+    ],
+    sub:[86,0,46,0,3,2,3,0,2,6,1,2], subT:151,
+    ew:[132,5,5,9], ewT:146
+  },
+  { acc:'윤성효', color:'#6CA07A',
+    rows:[
+      {n:'엄재호내과',                v:[33,0, 0,0,0,0, 0,0,0,1,0,0], ec:false, t:34},
+      {n:'충북대병원',                v:[24,0,11,0,9,4,12,1,0,2,3,0], ec:false, t:66},
+      {n:'단국대병원',                v:[5, 0,15,0,9,2,11,0,0,1,0,0], ec:false, t:43},
+      {n:'서연석내과',                v:[31,0, 0,0,0,0, 0,0,0,1,0,0], ec:false, t:32},
+      {n:'베스티안오송병원',          v:[0, 0, 0,0,2,0, 2,0,0,0,0,0], ec:false, t:4},
+      {n:'최지욱내과',                v:[17,0,14,0,0,0, 0,0,0,1,0,0], ec:false, t:32},
+      {n:'청주하나병원',              v:[0, 0, 0,0,3,1, 4,0,0,0,0,0], ec:false, t:8},
+      {n:'효성병원',                  v:[19,0, 0,0,2,0, 2,0,0,0,0,1], ec:true,  t:24},
+      {n:'충북대산학협력단(동물병원)', v:[0, 0, 0,0,0,1, 1,0,0,0,0,0], ec:false, t:2}
+    ],
+    sub:[129,0,40,0,25,8,32,1,0,6,3,1], subT:245,
+    ew:[169,33,33,10], ewT:212
+  }
+];
+
+function renderCustomer(){
+  var el=document.getElementById('custPanelInner');
+  if(!el) return;
+
+  // Count total unique customers
+  var totalAccts=0;
+  CUST_DATA.forEach(function(m){ totalAccts+=m.rows.length; });
+
+  var html='';
+
+  // KPI strip
+  html+='<div class="cust-kpi">';
+  CUST_DATA.forEach(function(m){
+    html+='<div class="ck"><div class="ck-v" style="color:'+m.color+'">'+m.subT+'</div><div class="ck-l">'+esc(m.acc)+'</div></div>';
+  });
+  html+='<div class="ck"><div class="ck-v">'+(CUST_DATA[0].subT+CUST_DATA[1].subT+CUST_DATA[2].subT)+'</div><div class="ck-l">전체 합계</div></div>';
+  html+='<div class="ck"><div class="ck-v">'+totalAccts+'</div><div class="ck-l">거래처</div></div>';
+  html+='</div>';
+
+  // Table
+  html+='<div class="cust-wrap"><table class="cust-table">';
+  html+='<thead><tr>';
+  html+='<th class="th-fix">거래처명</th>';
+  COLS.forEach(function(c){ html+='<th>'+esc(c)+'</th>'; });
+  html+='<th style="color:var(--plum);">Total</th>';
+  html+='</tr></thead><tbody>';
+
+  CUST_DATA.forEach(function(m){
+    var col=m.color;
+    var lightCol=col+'1A';
+
+    // Manager header row
+    html+='<tr class="cust-acc" style="background:'+col+';">';
+    html+='<td class="td-fix" style="background:'+col+';font-size:13px;">'+esc(m.acc)+'</td>';
+    COLS.forEach(function(){ html+='<td></td>'; });
+    html+='<td></td></tr>';
+
+    // Customer rows
+    m.rows.forEach(function(r){
+      html+='<tr>';
+      html+='<td class="td-fix" style="background:#fff;" title="'+esc(r.n)+'">'+esc(r.n)+'</td>';
+      r.v.forEach(function(n, i){
+        // CWP column (index 9): show "EauClair" label for EauClair customers
+        if(i===9 && r.ec){
+          html+='<td><span style="font-size:9px;font-weight:700;color:#8B5CF6;letter-spacing:0.3px;">EauClair</span></td>';
+        } else {
+          html+='<td><span class="cn'+(n===0?' z':'')+'">'+( n===0?'-':n)+'</span></td>';
+        }
+      });
+      html+='<td><span class="cn t">'+r.t+'</span></td>';
+      html+='</tr>';
+    });
+
+    // Manager subtotal row  (label: "신상학 Total" style)
+    html+='<tr class="cust-sub" style="background:'+lightCol+';">';
+    html+='<td class="td-fix" style="background:'+lightCol+';font-weight:800;color:'+col+';">'+esc(m.acc)+' Total</td>';
+    m.sub.forEach(function(n){
+      html+='<td><span class="cn'+(n===0?' z':'')+'" style="color:'+col+'">'+( n===0?'-':n)+'</span></td>';
+    });
+    html+='<td><span class="cn t" style="color:'+col+'">'+m.subT+'</span></td>';
+    html+='</tr>';
+
+    // Except Warmer row
+    // Groupings: Renal(span4)=ew[0], PRISMA_A(span2)=ew[1], PRISMA_B(span3)=ew[2], Warmers(span3)=ew[3], Total
+    var ewStyle='background:#F5F0FA;color:#5a1f70;font-weight:700;font-size:11px;';
+    html+='<tr style="'+ewStyle+'">';
+    html+='<td class="td-fix" style="background:#F5F0FA;color:#5a1f70;font-size:11px;font-weight:700;font-style:italic;">Except Warmer</td>';
+    html+='<td colspan="4" style="text-align:center;'+ewStyle+'"><span class="cn">'+m.ew[0]+'</span></td>';
+    html+='<td colspan="2" style="text-align:center;'+ewStyle+'"><span class="cn">'+m.ew[1]+'</span></td>';
+    html+='<td colspan="3" style="text-align:center;'+ewStyle+'"><span class="cn">'+m.ew[2]+'</span></td>';
+    html+='<td colspan="3" style="text-align:center;'+ewStyle+'"><span class="cn z">-</span></td>';
+    html+='<td style="'+ewStyle+'"><span class="cn t" style="color:#5a1f70;">'+m.ewT+'</span></td>';
+    html+='</tr>';
+  });
+
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
 }
 
 function switchTab(tab, el){
@@ -1080,7 +1459,9 @@ function switchTab(tab, el){
   document.getElementById('sbarEl').style.display = isSearch ? '' : 'none';
   document.getElementById('searchPanel').classList.toggle('on', isSearch);
   document.getElementById('statsPanel').classList.toggle('on', tab==='stats');
+  document.getElementById('custPanel').classList.toggle('on', tab==='customer');
   if(tab==='stats') renderStats();
+  if(tab==='customer') renderCustomer();
   if(isSearch) go();
 }
 
