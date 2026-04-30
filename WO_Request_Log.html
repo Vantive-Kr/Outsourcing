@@ -813,8 +813,8 @@ var WO=[
 {dt:"2026-04-30 10:12:35",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested filter (5micro)replacement",mode:"n/a",note:"s/n: 600793",sn:"600793"},
 {dt:"2026-04-30 12:16:09",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"PM0",dev:"CWP66",fault:"n/a",mode:"n/a",note:"s/n: 61015063",sn:"61015063"},
 {dt:"2026-04-30 15:01:51",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"#0511 088 066 027 DIVA/TAVA test error",mode:"setup",note:"s/n 21858",sn:"21858"},
-{dt:"2026-04-30 15:25:39",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"국립소방병원",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK080052, AK080053, AK080054, AK080055",sn:"AK080052, AK080053, AK080054, AK080055"},
-{dt:"2026-04-30 15:26:05",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"국립소방병원",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK080056, AK080057, AK080058, AK080059, AK080060, AK080062, AK080063, AK080064",sn:"AK080056, AK080057, AK080058, AK080059, AK080060, AK080062, AK080063, AK080064"}
+{dt:"2026-04-30 15:25:39",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"국립소방병원",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"AK080052, AK080053, AK080054, AK080055",sn:"AK080052, AK080053, AK080054, AK080055",wo:"3481169(AK080052), 3481174(AK080053), 3481177(AK080054), 3481181(AK080055)"},
+{dt:"2026-04-30 15:26:05",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"국립소방병원",typ:"Installation",dev:"AK98",fault:"n/a",mode:"n/a",note:"s/n: AK080056, AK080057, AK080058, AK080059, AK080060, AK080062, AK080063, AK080064",sn:"AK080056, AK080057, AK080058, AK080059, AK080060, AK080062, AK080063, AK080064",wo:"3481187(AK080056), 3481190(AK080057), 3481196(AK080058), 3481199(AK080059), 3481201(AK080060), 3481203(AK080062), 3481204(AK080063), 3481210(AK080064)"}
 ];
 
 // Auto-normalize: AK98 장비의 PM은 Base Kit PM으로 처리
@@ -925,6 +925,7 @@ function renderPage(){
           (w.mode&&w.mode!=='n/a' ? '<div class="drow"><span class="dlbl">고장모드</span><span class="dval">'+esc(w.mode)+'</span></div>' : '')+
           (w.note&&w.note!=='n/a' ? '<div class="drow"><span class="dlbl">전달사항</span><span class="dval">'+hi(w.note,ws)+'</span></div>' : '')+
           (hasSerial ? '<div class="divider-arrow"><span>Serial No.</span></div><div class="drow"><span class="dval highlight">'+hi(w.sn,ws)+'</span></div>' : '')+
+          (w.wo ? '<div class="divider-arrow"><span>WO No.</span></div><div class="drow"><span class="dval highlight" style="font-size:12px;word-break:break-all;">'+esc(w.wo)+'</span></div>' : '')+
         '</div>'+
       '</div>'+
     '</div>';
