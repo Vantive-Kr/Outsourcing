@@ -4,39 +4,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>WO Request Log · Vantive DJ Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --nav-h:64px;
-  --plum:#72256B;--plum-d:#5C1B56;--plum-light:rgba(114,37,107,0.09);
+  /* Core palette — shared with the Vantive briefing design system */
+  --plum:#72256B;--plum-d:#58184F;--plum-light:rgba(114,37,107,0.08);
   --cream:#FFFAEB;
-  --pine:#105742;--pine-light:rgba(16,87,66,0.10);
-  --euca:#6CA07A;--euca-light:rgba(108,160,122,0.15);
+  --pine:#105742;--pine-light:rgba(16,87,66,0.09);
+  --euca:#6CA07A;--euca-light:rgba(108,160,122,0.13);
   --sage:#CDDFD7;
-  --amber:#D4700A;--amber-light:rgba(212,112,10,0.10);
-  --danger:#C0392B;--danger-light:rgba(192,57,43,0.10);
-  --white:#FFFFFF;--text:#1C1C1E;--text2:#52525B;--text3:#A1A1AA;
-  --border:rgba(0,0,0,0.07);--border-p:rgba(114,37,107,0.14);
-  --shadow:0 2px 14px rgba(0,0,0,0.06);--r:14px;--r-xs:5px;
+  --amber:#B07D2E;--amber-light:rgba(176,125,46,0.10);
+  --danger:#AE4048;--danger-light:rgba(174,64,72,0.09);
+  /* Surfaces & text — softer, lower-contrast scale */
+  --bg:#F6F0EA;
+  --white:#FFFFFF;--surface-hover:#FFFAEB;
+  --text:#1B1219;--text2:#6B5468;--text3:#9B879A;
+  --border:rgba(114,37,107,0.12);--border-p:rgba(114,37,107,0.18);
+  --shadow:0 1px 3px rgba(27,18,25,0.04);
+  --shadow-lift:0 4px 20px rgba(114,37,107,0.09);
+  --r:14px;--r-xs:6px;
+  --fs:'Noto Sans KR','Inter',-apple-system,"Segoe UI",sans-serif;
+  --fs-mono:'SF Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* Status-page breakdown numbers: one size for every 건수, one for every % —
+     shared by the bar stats, month accordion, donut legends and trend table so
+     the same kind of number always reads at the same size wherever it appears. */
+  --num-cnt-size:12px;
+  --num-pct-size:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
-  background:var(--cream);color:var(--text);font-size:14px;min-height:100vh;
+body{font-family:var(--fs);
+  background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;
   -webkit-font-smoothing:antialiased;
   padding-bottom:calc(var(--nav-h) + max(env(safe-area-inset-bottom,0px),10px));}
 
 /* ── Header ── */
-.hdr{background:linear-gradient(150deg,var(--plum-d) 0%,var(--plum) 60%,#8B3080 100%);
+.hdr{background:linear-gradient(160deg,var(--plum-d) 0%,var(--plum) 100%);
   padding:calc(16px + env(safe-area-inset-top,0px)) 18px 0;
   position:sticky;top:0;z-index:200;overflow:hidden;}
-.hdr::after{content:">>>";position:absolute;right:16px;bottom:18px;
-  font-size:22px;font-weight:900;color:rgba(255,250,235,0.10);letter-spacing:-2px;
-  font-family:"Arial Black",Arial,sans-serif;}
 .hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;position:relative;z-index:2;}
-.wmark-wrap{display:flex;flex-direction:column;gap:4px;}
+.wmark-wrap{display:flex;flex-direction:column;gap:5px;}
 .wmark-img{height:26px;width:auto;max-width:100px;display:block;}
-.tagline{font-size:12px;font-weight:700;color:rgba(255,250,235,0.55);letter-spacing:1.8px;text-transform:uppercase;font-family:"Arial Black",Arial,sans-serif;}
-.total-badge{background:rgba(255,250,235,0.18);border:1px solid rgba(255,250,235,0.25);
-  color:var(--cream);font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;flex-shrink:0;margin-top:2px;}
+.tagline{font-size:11px;font-weight:600;color:rgba(255,250,235,0.62);letter-spacing:1.4px;text-transform:uppercase;font-family:var(--fs);}
+.total-badge{background:rgba(255,250,235,0.14);border:1px solid rgba(255,250,235,0.22);
+  color:var(--cream);font-size:11px;font-weight:600;padding:5px 13px;border-radius:20px;flex-shrink:0;margin-top:2px;}
 .s-wrap{position:relative;margin-bottom:10px;z-index:2;}
 .s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;}
 .s-inp{width:100%;padding:12px 42px 12px 44px;background:rgba(255,250,235,0.13);
@@ -51,65 +64,70 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .s-clr.show{display:block;}
 .s-hint{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-bottom:12px;
   font-size:11px;color:rgba(255,250,235,0.58);position:relative;z-index:2;}
-.h-arr{color:rgba(255,250,235,0.75);font-weight:900;letter-spacing:-2px;font-family:"Arial Black",Arial,sans-serif;}
-.h-ex{background:rgba(255,250,235,0.14);border:1px solid rgba(255,250,235,0.18);
-  color:rgba(255,250,235,0.9);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;}
+.h-lbl{color:rgba(255,250,235,0.5);font-weight:600;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;}
+.h-ex{background:rgba(255,250,235,0.12);border:1px solid rgba(255,250,235,0.16);
+  color:rgba(255,250,235,0.85);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:500;}
 
 /* ── Filters ── */
-.filt{background:var(--cream);padding:10px 16px;border-bottom:1px solid var(--border);}
-.flbl{font-size:11px;font-weight:800;color:var(--pine);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;font-family:"Arial Black",Arial,sans-serif;display:flex;align-items:center;gap:5px;}
+.filt{background:var(--bg);padding:12px 16px;border-bottom:1px solid var(--border);}
+.flbl{font-size:11px;font-weight:800;color:var(--pine);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;font-family:var(--fs);display:flex;align-items:center;gap:5px;}
 .seg-row{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
 .seg-row::-webkit-scrollbar{display:none;}
 .seg{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
-  cursor:pointer;user-select:none;white-space:nowrap;background:rgba(0,0,0,0.05);color:var(--text2);
-  border:1.5px solid transparent;transition:all .15s ease;font-family:inherit;display:inline-flex;align-items:center;}
+  cursor:pointer;user-select:none;white-space:nowrap;background:rgba(114,37,107,0.05);color:var(--text2);
+  border:1px solid var(--border);transition:all .15s ease;font-family:inherit;display:inline-flex;align-items:center;}
 .seg.on{background:var(--plum);color:var(--cream);border-color:var(--plum);}
 .seg:active{transform:scale(0.95);}
 .frow{margin-bottom:8px;}.frow:last-child{margin-bottom:0;}
 
 /* ── Status bar ── */
-.sbar{padding:7px 18px 5px;font-size:12px;color:var(--text2);background:var(--cream);}
-.sbar b{color:var(--plum);font-weight:700;}
+.sbar{padding:9px 18px 6px;font-size:12px;color:var(--text2);background:var(--bg);}
+.sbar b{color:var(--plum);font-weight:600;}
 
 /* ── Cards ── */
 .cards{padding:8px 14px 24px;display:flex;flex-direction:column;gap:8px;}
-.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;transition:box-shadow .2s;}
+.card:hover{box-shadow:var(--shadow-lift);}
 .chead{display:flex;align-items:flex-start;gap:10px;padding:12px 13px 10px;cursor:pointer;}
 .wo-num{display:inline-flex;align-items:center;justify-content:center;
   min-width:38px;padding:3px 7px;border-radius:var(--r-xs);font-size:11px;font-weight:800;
   white-space:nowrap;flex-shrink:0;margin-top:2px;
-  font-family:monospace;background:var(--plum-light);color:var(--plum);border:1px solid var(--border-p);}
+  font-family:var(--fs-mono);background:var(--plum-light);color:var(--plum);border:1px solid var(--border-p);}
 .cbody{flex:1;min-width:0;}
 .ctitle{font-size:13.5px;font-weight:700;line-height:1.4;margin-bottom:5px;color:var(--text);}
 .cmeta{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
 .chev{color:var(--text3);flex-shrink:0;margin-top:2px;width:22px;height:22px;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.04);border-radius:50%;transition:transform .25s ease,background .15s;}
+  background:rgba(114,37,107,0.05);border-radius:50%;transition:transform .25s ease,background .15s;}
 .chev.open{transform:rotate(180deg);background:var(--plum-light);color:var(--plum);}
 
-/* Badges */
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;}
-.b-acc{background:var(--plum-light);color:var(--plum);border:1px solid var(--border-p);}
-.b-repair{background:var(--danger-light);color:var(--danger);}
-.b-fch{background:var(--amber-light);color:var(--amber);}
-.b-pm{background:var(--pine-light);color:var(--pine);}
-.b-pm2{background:#d0eae3;color:#0a5c3a;}
-.b-basekit{background:#e8d5f0;color:#5a1f70;}
-.b-install{background:var(--euca-light);color:#0a6b4e;}
-.b-other{background:rgba(0,0,0,0.05);color:var(--text3);}
-.b-date{background:rgba(0,0,0,0.04);color:var(--text3);font-family:monospace;font-size:10px;}
+/* Badges — one muted tint per category, no saturated fills */
+.badge{display:inline-block;padding:2.5px 8px;border-radius:5px;font-size:10px;font-weight:600;
+  letter-spacing:.3px;text-transform:uppercase;border:1px solid transparent;}
+.b-acc{background:var(--plum-light);color:var(--plum);border-color:var(--border-p);}
+.b-repair{background:var(--danger-light);color:var(--danger);border-color:rgba(174,64,72,0.18);}
+.b-fch{background:var(--amber-light);color:var(--amber);border-color:rgba(176,125,46,0.18);}
+.b-pm{background:var(--pine-light);color:var(--pine);border-color:rgba(16,87,66,0.18);}
+.b-pm2{background:var(--euca-light);color:var(--pine);border-color:rgba(108,160,122,0.28);}
+.b-basekit{background:rgba(114,37,107,0.10);color:var(--plum);border-color:rgba(114,37,107,0.20);}
+.b-install{background:rgba(108,160,122,0.10);color:#2A7358;border-color:rgba(108,160,122,0.22);}
+.b-other{background:rgba(27,18,25,0.04);color:var(--text3);border-color:rgba(27,18,25,0.06);}
+.b-sn{background:rgba(27,18,25,0.04);color:var(--text2);border-color:rgba(27,18,25,0.07);
+  font-family:var(--fs-mono);text-transform:none;letter-spacing:0;}
+.b-date{background:transparent;color:var(--text3);font-family:var(--fs-mono);font-size:10px;
+  font-weight:500;text-transform:none;letter-spacing:0;padding-left:2px;padding-right:2px;}
 
 /* ── Detail Panel ── */
 .cdet{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);}
 .cdet.open{max-height:600px;border-top:1px solid var(--border);}
-.cdet-in{padding:14px 13px 16px;background:rgba(255,250,235,0.5);}
+.cdet-in{padding:14px 13px 16px;background:var(--surface-hover);}
 .drow{display:flex;gap:8px;margin-bottom:9px;align-items:flex-start;}
 .drow:last-child{margin-bottom:0;}
 .dlbl{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1.2px;text-transform:uppercase;
-  min-width:80px;flex-shrink:0;padding-top:2px;font-family:"Arial Black",Arial,sans-serif;}
+  min-width:80px;flex-shrink:0;padding-top:2px;font-family:var(--fs);}
 .dval{font-size:13px;color:var(--text);line-height:1.55;word-break:break-word;}
 .dval.highlight{background:var(--plum-light);color:var(--plum);
-  border-radius:6px;padding:5px 9px;font-weight:600;font-family:monospace;}
+  border-radius:6px;padding:5px 9px;font-weight:600;font-family:var(--fs-mono);}
 .divider-arrow{display:flex;align-items:center;gap:6px;margin:10px 0 8px;}
 .divider-arrow::before,.divider-arrow::after{content:"";flex:1;height:1px;background:var(--border);}
 .divider-arrow span{font-size:10px;color:var(--text3);font-weight:700;letter-spacing:1px;text-transform:uppercase;}
@@ -126,26 +144,26 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .stat-hdr{font-size:12px;font-weight:800;color:var(--pine);letter-spacing:0.8px;
   text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;
   border-bottom:2px solid var(--euca-light);
-  font-family:"Arial Black",Arial,sans-serif;display:flex;align-items:center;gap:6px;}
+  font-family:var(--fs);display:flex;align-items:center;gap:6px;}
 .stat-hdr svg{width:14px;height:14px;flex-shrink:0;stroke:var(--pine);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .stat-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);
   border:1px solid var(--border);padding:16px 18px;margin-bottom:10px;}
 .stat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .stat-row:last-child{margin-bottom:0;}
 .stat-name{font-size:13px;font-weight:700;color:var(--text);min-width:70px;}
-.stat-bar-wrap{flex:1;height:22px;background:rgba(0,0,0,0.04);border-radius:4px;overflow:hidden;}
+.stat-bar-wrap{flex:1;height:22px;background:rgba(114,37,107,0.06);border-radius:5px;overflow:hidden;}
 .stat-bar{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;padding-left:8px;}
 .stat-bar span{font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);}
-.stat-cnt{font-size:13px;font-weight:800;min-width:36px;text-align:right;font-family:monospace;}
-.stat-pct{font-size:11px;color:var(--text3);min-width:38px;text-align:right;}
+.stat-cnt{font-size:var(--num-cnt-size);font-weight:800;min-width:36px;text-align:right;font-family:var(--fs-mono);}
+.stat-pct{font-size:var(--num-pct-size);color:var(--text3);min-width:38px;text-align:right;}
 
 /* Monthly table */
 .mo-table{width:100%;border-collapse:collapse;}
 .mo-table th{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1px;
   text-transform:uppercase;padding:6px 8px;border-bottom:1.5px solid var(--border);
-  text-align:left;font-family:"Arial Black",Arial,sans-serif;}
+  text-align:left;font-family:var(--fs);}
 .mo-table td{font-size:12px;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--text2);}
-.mo-table td:first-child{font-weight:700;color:var(--text);font-family:monospace;}
+.mo-table td:first-child{font-weight:700;color:var(--text);font-family:var(--fs-mono);}
 .mo-table tr:last-child td{border-bottom:none;}
 .mo-cell{display:inline-block;padding:2px 7px;border-radius:4px;font-weight:700;font-size:11px;text-align:center;min-width:30px;}
 
@@ -154,7 +172,7 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .kpi{background:var(--white);border-radius:12px;box-shadow:var(--shadow);
   border:1px solid var(--border);padding:14px 12px;text-align:center;}
 .kpi-val{font-size:26px;font-weight:900;color:var(--plum);line-height:1;margin-bottom:4px;
-  font-family:"Arial Black",Arial,sans-serif;}
+  font-family:var(--fs);}
 .kpi-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.8px;}
 
 /* ── Bottom Nav ── */
@@ -162,12 +180,12 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
   background:#B5CFBC;border-top:1.5px solid rgba(114,37,107,0.18);
   display:flex;align-items:flex-start;padding-top:10px;
   padding-bottom:max(env(safe-area-inset-bottom,0px),10px);z-index:200;}
-.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
   padding:3px 4px;cursor:pointer;border:none;background:none;font-family:inherit;
   -webkit-tap-highlight-color:transparent;}
 .bnav-svg{width:22px;height:22px;color:rgba(114,37,107,0.4);transition:color .15s,transform .18s cubic-bezier(.34,1.56,.64,1);}
-.bnav-label{font-size:9px;font-weight:800;color:rgba(114,37,107,0.5);
-  font-family:"Arial Black",Arial,sans-serif;letter-spacing:.4px;text-transform:uppercase;}
+.bnav-label{font-size:9.5px;font-weight:600;color:rgba(114,37,107,0.5);
+  font-family:var(--fs);letter-spacing:.5px;text-transform:uppercase;}
 .bnav-item.on .bnav-svg{color:var(--plum);transform:scale(1.12);}
 .bnav-item.on .bnav-label{color:var(--plum);}
 .bnav-item:active .bnav-svg{transform:scale(0.88);}
@@ -178,9 +196,9 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .mo-filter-row{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
 .mo-filter-row::-webkit-scrollbar{display:none;}
 .mo-chip{flex-shrink:0;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:700;
-  cursor:pointer;user-select:none;white-space:nowrap;background:rgba(0,0,0,0.05);color:var(--text2);
-  border:1.5px solid transparent;transition:all .15s;font-family:inherit;}
-.mo-chip.on{background:var(--pine);color:var(--cream);border-color:var(--pine);}
+  cursor:pointer;user-select:none;white-space:nowrap;background:rgba(114,37,107,0.05);color:var(--text2);
+  border:1px solid var(--border);transition:all .15s;font-family:inherit;}
+.mo-chip.on{background:var(--plum);color:var(--cream);border-color:var(--plum);}
 .mo-chip:active{transform:scale(0.95);}
 
 /* ── Paging ── */
@@ -201,25 +219,25 @@ body{font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
 .mo-acc-head{display:flex;align-items:center;justify-content:space-between;
   padding:12px 16px;cursor:pointer;user-select:none;transition:background .12s;}
 .mo-acc-head:hover{background:var(--plum-light);}
-.mo-acc-ym{font-size:14px;font-weight:800;color:var(--plum);font-family:"Arial Black",Arial,sans-serif;letter-spacing:.5px;}
+.mo-acc-ym{font-size:14px;font-weight:800;color:var(--plum);font-family:var(--fs);letter-spacing:.5px;}
 .mo-acc-meta{display:flex;align-items:center;gap:8px;}
 .mo-acc-cnt{font-size:12px;color:var(--text3);}
 .mo-acc-chev{font-size:14px;color:var(--text3);transition:transform .25s;}
 .mo-acc-chev.open{transform:rotate(180deg);}
 .mo-acc-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);}
 .mo-acc-body.open{max-height:800px;}
-.mo-acc-in{padding:12px 16px 16px;border-top:1px solid var(--border);background:rgba(255,250,235,0.4);}
+.mo-acc-in{padding:12px 16px 16px;border-top:1px solid var(--border);background:var(--surface-hover);}
 .mo-sub-hdr{font-size:9px;font-weight:800;color:var(--pine);letter-spacing:1.4px;
-  text-transform:uppercase;margin:10px 0 7px;font-family:"Arial Black",Arial,sans-serif;}
+  text-transform:uppercase;margin:10px 0 7px;font-family:var(--fs);}
 .mo-sub-hdr:first-child{margin-top:0;}
 .mo-stat-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
 .mo-stat-row:last-child{margin-bottom:0;}
 .mo-stat-name{font-size:12px;font-weight:600;color:var(--text);min-width:70px;}
-.mo-bar-wrap{flex:1;height:18px;background:rgba(0,0,0,0.04);border-radius:3px;overflow:hidden;}
+.mo-bar-wrap{flex:1;height:18px;background:rgba(114,37,107,0.06);border-radius:4px;overflow:hidden;}
 .mo-bar{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px;transition:width .5s ease;}
 .mo-bar span{font-size:10px;font-weight:700;color:rgba(255,255,255,0.9);}
-.mo-stat-cnt{font-size:12px;font-weight:800;min-width:28px;text-align:right;font-family:monospace;}
-.mo-stat-pct{font-size:11px;color:var(--text3);min-width:38px;text-align:right;}
+.mo-stat-cnt{font-size:var(--num-cnt-size);font-weight:800;min-width:28px;text-align:right;font-family:var(--fs-mono);}
+.mo-stat-pct{font-size:var(--num-pct-size);color:var(--text3);min-width:38px;text-align:right;}
 
 mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;padding:0 1px;}
 
@@ -232,7 +250,7 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
   padding:8px 10px;font-size:10px;font-weight:800;letter-spacing:0.6px;
   text-transform:uppercase;white-space:nowrap;text-align:center;
   background:var(--sage,#CDDFD7);color:var(--pine);border-bottom:2px solid rgba(16,87,66,0.25);
-  font-family:"Arial Black",Arial,sans-serif;position:sticky;top:0;z-index:2;}
+  font-family:var(--fs);position:sticky;top:0;z-index:2;}
 .cust-table th.th-fix{position:sticky;left:0;z-index:3;text-align:left;}
 .cust-table td{
   padding:7px 10px;border-bottom:1px solid var(--border);
@@ -243,30 +261,32 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
   white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
 /* Manager header row */
 .cust-acc td{font-weight:800;font-size:12px;letter-spacing:0.3px;
-  font-family:"Arial Black",Arial,sans-serif;color:#fff;border-bottom:none;}
+  font-family:var(--fs);color:#fff;border-bottom:none;}
 .cust-acc td.td-fix{color:#fff;}
 /* Subtotal row */
 .cust-sub td{font-weight:700;font-size:12px;border-top:1.5px solid rgba(0,0,0,0.12);}
 /* Grand total row */
 .cust-grand td{background:var(--plum-light)!important;color:var(--plum)!important;
   font-weight:800;font-size:13px;border-top:2px solid var(--plum);
-  font-family:"Arial Black",Arial,sans-serif;}
+  font-family:var(--fs);}
 /* Number cells */
-.cn{font-family:monospace;font-weight:700;}
-.cn.z{color:#ccc;font-weight:400;}
+.cn{font-family:var(--fs-mono);font-weight:700;}
+.cn.z{color:var(--text3);font-weight:400;}
 .cn.t{color:var(--plum);font-weight:800;}
 /* Kpi strip */
 .cust-kpi{display:flex;gap:8px;padding:0 14px 12px;overflow-x:auto;scrollbar-width:none;}
 .cust-kpi::-webkit-scrollbar{display:none;}
 .ck{background:var(--white);border:1px solid var(--border);border-radius:12px;
   padding:10px 14px;text-align:center;flex-shrink:0;min-width:80px;box-shadow:var(--shadow);}
-.ck-v{font-size:20px;font-weight:900;color:var(--plum);font-family:"Arial Black",Arial,sans-serif;line-height:1;}
+.ck-v{font-size:20px;font-weight:900;color:var(--plum);font-family:var(--fs);line-height:1;}
 .ck-l{font-size:9px;color:var(--text3);font-weight:600;text-transform:uppercase;margin-top:3px;}
+.ck-sub{font-size:8px;color:var(--plum);font-weight:600;letter-spacing:.3px;margin-top:2px;
+  text-transform:uppercase;opacity:.75;white-space:nowrap;}
 
 /* ── Charts ── */
 .chart-section{margin-bottom:14px;}
 .chart-hdr{font-size:11px;font-weight:800;color:var(--pine);letter-spacing:0.8px;
-  text-transform:uppercase;margin-bottom:8px;font-family:"Arial Black",Arial,sans-serif;display:flex;align-items:center;gap:5px;}
+  text-transform:uppercase;margin-bottom:8px;font-family:var(--fs);display:flex;align-items:center;gap:5px;}
 .chart-hdr svg{width:13px;height:13px;flex-shrink:0;stroke:var(--pine);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .chart-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);
   border:1px solid var(--border);padding:14px 14px 10px;}
@@ -276,12 +296,46 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
 .donut-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);
   border:1px solid var(--border);padding:12px 10px 12px;text-align:center;}
 .donut-title{font-size:11px;font-weight:800;color:var(--pine);letter-spacing:0.8px;
-  text-transform:uppercase;margin-bottom:10px;font-family:"Arial Black",Arial,sans-serif;}
+  text-transform:uppercase;margin-bottom:10px;font-family:var(--fs);}
 .donut-legend{display:flex;flex-direction:column;gap:4px;margin-top:10px;text-align:left;}
 .donut-leg-row{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);}
 .donut-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .donut-leg-name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.donut-leg-cnt{font-family:monospace;font-weight:700;color:var(--text);}
+.donut-leg-cnt{font-family:var(--fs-mono);font-weight:700;color:var(--text);font-size:var(--num-cnt-size);}
+.donut-leg-nums{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;}
+.donut-leg-pct{font-size:var(--num-pct-size);font-weight:600;color:var(--text3);font-family:var(--fs);}
+
+/* Chart legend (trend charts) */
+.chart-legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  padding:8px 4px 2px;margin-top:4px;border-top:1px solid var(--border);}
+.cl-item{display:inline-flex;align-items:center;gap:5px;font-size:12.1px;
+  font-weight:600;color:var(--text2);white-space:nowrap;}
+.cl-line{width:16px;height:3px;border-radius:2px;flex-shrink:0;}
+.cl-line.dash{background:none!important;border-top:2px dashed #B07D2E;height:0;}
+
+/* Trend number table — column widths are set inline to match the canvas */
+.trend-tbl{border-collapse:collapse;table-layout:fixed;font-family:var(--fs);}
+.trend-tbl td{font-size:11px;font-weight:700;text-align:center;padding:4px 2px;
+  border-bottom:1px solid var(--border);color:var(--text);
+  font-family:var(--fs-mono);white-space:nowrap;}
+.trend-tbl tr:last-child td{border-bottom:none;}
+/* label column stays put while the month columns scroll */
+.trend-tbl td.tt-lbl{text-align:left;padding-left:2px;font-family:var(--fs);font-size:11px;
+  position:sticky;left:0;z-index:1;background:var(--white);}
+.tt-total td.tt-lbl{background:#F9F5F8;}
+.tt-lbl-in{display:flex;align-items:center;gap:5px;}
+.trend-tbl td.tt-z{color:var(--text3);font-weight:400;}
+.tt-total td{background:rgba(114,37,107,0.045);}
+.tt-val{line-height:1.2;font-size:var(--num-cnt-size);}
+.tt-pct{font-size:var(--num-pct-size);font-weight:600;color:var(--text3);line-height:1.2;
+  margin-top:1px;font-family:var(--fs);}
+.tt-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;}
+.tt-sw{flex-shrink:0;display:inline-block;}
+.tt-sw-bar{width:14px;height:9px;border-radius:2px;background:rgba(114,37,107,0.16);}
+.tt-sw-line{width:14px;height:2px;border-radius:2px;background:var(--c);position:relative;}
+.tt-sw-line::after{content:'';position:absolute;left:50%;top:50%;
+  width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;
+  background:#fff;border:1.4px solid var(--c);box-sizing:content-box;}
 </style>
 </head>
 <body>
@@ -301,16 +355,17 @@ mark{background:rgba(114,37,107,0.13);color:var(--plum);border-radius:2px;paddin
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
     <input id="sInp" class="s-inp" type="search"
-      placeholder="거래처, 장비명, 고장내용, 시리얼 검색…"
+      placeholder="거래처, 장비명, 고장내용, 시리얼, WO번호 검색…"
       autocomplete="off" autocorrect="off" spellcheck="false">
     <button class="s-clr" id="sClr" aria-label="Clear">✕</button>
   </div>
   <div class="s-hint">
-    <span class="h-arr">&gt;&gt;&gt;</span>
+    <span class="h-lbl">예시</span>
     <span class="h-ex">충북대</span>
     <span class="h-ex">AK98</span>
     <span class="h-ex">repair</span>
     <span class="h-ex">PA16568</span>
+    <span class="h-ex">3781575</span>
   </div>
 </div>
 
@@ -1191,6 +1246,110 @@ var WO=[
 {dt:"2026-06-30 14:21:00",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# BPM failure",mode:"treatment",note:"16922, 26563",sn:"16922",wo:"3635159"},
 {dt:"2026-06-30 14:21:00",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# BPM failure",mode:"treatment",note:"16922, 26563",sn:"26563",wo:"3635160"},
 {dt:"2026-06-30 17:52:00",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"version upgrade",dev:"AK98",fault:"n/a",mode:"n/a",note:"3.2.0 version upgrade, s/n AK065602",sn:"AK065602",wo:"3635487"},
+{dt:"2026-07-01 17:14:20",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"Unstable conductivity",mode:"setup",note:"28753",sn:"28753",wo:"3651252"},
+{dt:"2026-07-01 17:15:56",sender:"윤성효부장님",acc:"윤성효",time:"14:30",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# Noise",mode:"Disinfection",note:"FX037651",sn:"FX037651",wo:"3651254"},
+{dt:"2026-07-02 12:27:08",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"AK98",fault:"#0511 088 066 027",mode:"setup",note:"s/n AK062750",sn:"AK062750",wo:"3654302"},
+{dt:"2026-07-02 15:45:35",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"Unstable conductivity",mode:"setup",note:"16845",sn:"16845",wo:"3654618"},
+{dt:"2026-07-02 17:47:23",sender:"윤성효부장님",acc:"윤성효",time:"16:30",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"Disinfection",note:"FX031105",sn:"FX031105"},
+{dt:"2026-07-03 12:39:51",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충남대병원",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n 17635, AK063695, AK063694",sn:"17635",wo:"3472307"},
+{dt:"2026-07-03 12:39:51",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충남대병원",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n 17635, AK063695, AK063694",sn:"AK063695",wo:"3570197"},
+{dt:"2026-07-03 12:39:51",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충남대병원",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n 17635, AK063695, AK063694",sn:"AK063694",wo:"3570196"},
+{dt:"2026-07-06 08:48:04",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"김재하내과",typ:"repair",dev:"AK98",fault:"#0118 020 011 004",mode:"treatment",note:"s/n 13919",sn:"13919",wo:"3661891"},
+{dt:"2026-07-06 11:26:31",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"AK98",fault:"#internal leak",mode:"setup",note:"s/n AK062768",sn:"AK062768",wo:"3662329"},
+{dt:"2026-07-06 18:57:12",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이화병원",typ:"repair",dev:"AK98",fault:"#0118 020 011 004",mode:"treatment",note:"s/n AK069732",sn:"AK069732",wo:"3664475"},
+{dt:"2026-07-06 19:32:29",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이화병원",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 61015190",sn:"61015190",wo:"3664484"},
+{dt:"2026-07-07 15:39:37",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# 183error",mode:"setup",note:"FX035623",sn:"FX035623",wo:"3703487"},
+{dt:"2026-07-07 15:40:55",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"청주의료원",typ:"Fch",dev:"CWP64",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 6100467",sn:"6100467",wo:"3703492"},
+{dt:"2026-07-07 15:42:38",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"청주의료원",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX025515",sn:"FX025515",wo:"3703494"},
+{dt:"2026-07-07 15:43:51",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 426 error",mode:"setup",note:"FX025499",sn:"FX025499",wo:"3703499"},
+{dt:"2026-07-08 09:45:00",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"AK98",fault:"#0511 088 066 027",mode:"setup",note:"s/n AK062741",sn:"AK062741",wo:"3705443"},
+{dt:"2026-07-08 15:55:54",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 506 error",mode:"treatment",note:"FX025518",sn:"FX025518",wo:"3722308"},
+{dt:"2026-07-08 15:57:52",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"#0511 088 030 028",mode:"setup",note:"28449",sn:"28449",wo:"3722311"},
+{dt:"2026-07-08 15:59:01",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX031412",sn:"FX031412",wo:"3722312"},
+{dt:"2026-07-08 15:59:55",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 600793",sn:"600793",wo:"3722315"},
+{dt:"2026-07-09 08:59:52",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서울연합내과",typ:"repair",dev:"AK98",fault:"#unstable conductivity",mode:"setup",note:"s/n 19058",sn:"19058",wo:"3724321"},
+{dt:"2026-07-09 09:00:13",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서울연합내과",typ:"Fch",dev:"CWP64",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 600224",sn:"600224",wo:"3724323"},
+{dt:"2026-07-09 09:00:48",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"남궁요양병원",typ:"repair",dev:"ak98",fault:"#503 battery failure",mode:"setup",note:"s/n AK060770",sn:"AK060770",wo:"3724324"},
+{dt:"2026-07-09 15:36:16",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"최지욱내과",typ:"Repair",dev:"AK98",fault:"0511 088 066 027",mode:"setup",note:"16874",sn:"16874",wo:"3724999"},
+{dt:"2026-07-09 15:38:56",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 536",mode:"setup",note:"AK055763",sn:"AK055763",wo:"3725000"},
+{dt:"2026-07-09 16:49:30",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 battery failure",mode:"setup",note:"s/n AK062741, AK062734",sn:"AK062741",wo:"3725096"},
+{dt:"2026-07-09 16:49:30",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"ak98",fault:"#503 battery failure",mode:"setup",note:"s/n AK062741, AK062734",sn:"AK062734",wo:"3725097"},
+{dt:"2026-07-09 17:07:33",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 61015063",sn:"61015063",wo:"3725134"},
+{dt:"2026-07-10 16:12:30",sender:"윤성효부장님",acc:"윤성효",time:"12:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# External",mode:"Disinfection",note:"AK055849",sn:"AK055849",wo:"3727664"},
+{dt:"2026-07-11 11:36:42",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# 320 error",mode:"setup",note:"FX037651",sn:"FX037651"},
+{dt:"2026-07-11 15:50:09",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"28774",sn:"28774"},
+{dt:"2026-07-13 14:18:50",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"최지욱내과",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"setup",note:"FX028787",sn:"FX028787",wo:"3735201"},
+{dt:"2026-07-13 14:20:08",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 672 error",mode:"setup",note:"FX025512",sn:"FX025512",wo:"3735203"},
+{dt:"2026-07-13 17:17:36",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# Internal leak",mode:"setup",note:"FX031395",sn:"FX031395",wo:"3735466"},
+{dt:"2026-07-14 15:16:38",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"단국대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 61015224",sn:"61015224",wo:"3737942"},
+{dt:"2026-07-14 15:17:07",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"CWP66",fault:"Customer requested CWP Disinfection",mode:"n/a",note:"s/n: 600996",sn:"600996",wo:"3737945"},
+{dt:"2026-07-14 15:18:38",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"서연석내과",typ:"Fch",dev:"AK98",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: AK055775",sn:"AK055775",wo:"3737948"},
+{dt:"2026-07-14 15:20:11",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 503 Battery failure",mode:"setup",note:"AK055672",sn:"AK055672",wo:"3737952"},
+{dt:"2026-07-14 16:07:44",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"의료법인영서의료재단",typ:"repair",dev:"AK98",fault:"#unstable conductivity",mode:"setup",note:"s/n AK074871",sn:"AK074871",wo:"3738143"},
+{dt:"2026-07-14 16:10:23",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025606, FX025611",sn:"FX025606",wo:"3576864"},
+{dt:"2026-07-14 16:10:23",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025606, FX025611",sn:"FX025611",wo:"3576867"},
+{dt:"2026-07-16 15:28:22",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 469 error",mode:"setup",note:"FX025504, FX025495 2대입니다",sn:"FX025504",wo:"3743482"},
+{dt:"2026-07-16 15:28:22",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 469 error",mode:"setup",note:"FX025504, FX025495 2대입니다",sn:"FX025495",wo:"3743484"},
+{dt:"2026-07-16 15:29:50",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"최지욱내과",typ:"Fch",dev:"Artis physio",fault:"Customer requested Ultrafilter replacement",mode:"n/a",note:"s/n: FX031397",sn:"FX031397",wo:"3743477"},
+{dt:"2026-07-17 17:34:59",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"효성병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 060 021",mode:"setup",note:"AK078375",sn:"AK078375"},
+{dt:"2026-07-17 17:37:02",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"단국대병원",typ:"Repair",dev:"Artis physio",fault:"# 468 error",mode:"setup",note:"FX031105",sn:"FX031105"},
+{dt:"2026-07-17 18:34:58",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"의료법인영서의료재단",typ:"repair",dev:"AK98",fault:"#unstable conductivity",mode:"setup",note:"s/n AK074866",sn:"AK074866"},
+{dt:"2026-07-18 17:51:42",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# 557 error",mode:"setup",note:"AK056668",sn:"AK056668"},
+{dt:"2026-07-18 18:03:14",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"#external leak",mode:"setup",note:"s/n 20694",sn:"20694",wo:"3754805"},
+{dt:"2026-07-18 18:03:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 4338",sn:"4338",wo:"3754807"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025362",wo:"3576859"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025297",wo:"3576858"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025599",wo:"3576860"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025600",wo:"3576861"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025601",wo:"3576862"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025605",wo:"3576863"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025607",wo:"3576865"},
+{dt:"2026-07-18 18:45:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"참편한365내과",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX025362, FX025297, FX025599, FX025600, FX025601, FX025605, FX025607, FX025608",sn:"FX025608",wo:"3576866"},
+{dt:"2026-07-20 17:34:20",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"엄재호내과",typ:"Fch",dev:"CWP64",fault:"Customer requested water Quality test",mode:"n/a",note:"s/n: 6101626",sn:"6101626"},
+{dt:"2026-07-21 09:49:30",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 665 error",mode:"Disinfection",note:"FX025499",sn:"FX025499",wo:"3754620"},
+{dt:"2026-07-21 13:30:19",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 557 error",mode:"setup",note:"26550",sn:"26550",wo:"3754837"},
+{dt:"2026-07-22 16:23:54",sender:"윤성효부장님",acc:"윤성효",time:"09:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# unstable conductivity",mode:"setup",note:"27116",sn:"27116",wo:"3757891"},
+{dt:"2026-07-22 16:26:08",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 0511 088 130 029",mode:"setup",note:"26550",sn:"26550",wo:"3757894"},
+{dt:"2026-07-22 16:28:17",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# BPM failure",mode:"treatment",note:"AK055815, AK054956",sn:"AK055815",wo:"3757896"},
+{dt:"2026-07-22 16:28:17",sender:"윤성효부장님",acc:"윤성효",time:"10:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# BPM failure",mode:"treatment",note:"AK055815, AK054956",sn:"AK054956",wo:"3757899"},
+{dt:"2026-07-22 16:53:27",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"#unstable conductivity",mode:"setup",note:"s/n 21860",sn:"21860",wo:"3757924"},
+{dt:"2026-07-22 17:07:34",sender:"MnH 신상학 과장",acc:"신상학",time:"NA",acct:"박영선내과",typ:"repair",dev:"AK98",fault:"# 0505 018 005 026",mode:"setup",note:"s/n  19445",sn:"19445",wo:"3757934"},
+{dt:"2026-07-23 11:20:21",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이화병원",typ:"repair",dev:"AK98",fault:"#0506 009 001 045",mode:"treatment",note:"s/n AK068343",sn:"AK068343",wo:"3760246"},
+{dt:"2026-07-23 13:59:46",sender:"윤성효부장님",acc:"윤성효",time:"07:30",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"28765",sn:"28765",wo:"3760423"},
+{dt:"2026-07-23 14:01:27",sender:"윤성효부장님",acc:"윤성효",time:"11:30",acct:"충북대병원",typ:"Repair",dev:"Artis physio",fault:"# 108 error",mode:"setup",note:"FX031420",sn:"FX031420",wo:"3760425"},
+{dt:"2026-07-24 14:37:24",sender:"윤성효부장님",acc:"윤성효",time:"08:30",acct:"청주의료원",typ:"Repair",dev:"Artis physio",fault:"# 506 error",mode:"treatment",note:"FX025517",sn:"FX025517",wo:"3763361"},
+{dt:"2026-07-24 17:53:00",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"서산조은내과",typ:"repair",dev:"AK98",fault:"#external leak",mode:"disinfection",note:"s/n AK063622",sn:"AK063622",wo:"3763843"},
+{dt:"2026-07-24 20:17:18",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이화병원",typ:"repair",dev:"AK98",fault:"#external leak",mode:"disinfection",note:"s/n AK068345",sn:"AK068345",wo:"3763844"},
+{dt:"2026-07-25 17:45:23",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"0506 009 001 045",mode:"treatment",note:"28495",sn:"28495"},
+{dt:"2026-07-25 17:47:00",sender:"윤성효부장님",acc:"윤성효",time:"13:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# 607 error",mode:"Disinfection",note:"AK055849",sn:"AK055849"},
+{dt:"2026-07-25 17:59:59",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"이화병원",typ:"repair",dev:"AK98",fault:"#unstable conductivity",mode:"setup",note:"s/n AK068347",sn:"AK068347"},
+{dt:"2026-07-27 13:40:08",sender:"윤성효부장님",acc:"윤성효",time:"09:00",acct:"엄재호내과",typ:"Repair",dev:"AK98",fault:"# BPM failure",mode:"treatment",note:"AK054957",sn:"AK054957"},
+{dt:"2026-07-28 14:56:40",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# Unstable conductivity",mode:"setup",note:"AK055760",sn:"AK055760",wo:"3772784"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064462",wo:"3600381"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064463",wo:"3600382"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064621",wo:"3600383"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064622",wo:"3600384"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064623",wo:"3600385"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064624",wo:"3600386"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064455",wo:"3610744"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064456",wo:"3610745"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064457",wo:"3610746"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064458",wo:"3610747"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064459",wo:"3610748"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064460",wo:"3610749"},
+{dt:"2026-07-29 09:17:41",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"송창헌내과",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n AK064462, AK064463, AK064621, AK064622, AK064623, AK064624, AK064455, AK064456, AK064457, AK064458, AK064459, AK064460, AK064461",sn:"AK064461",wo:"3610750"},
+{dt:"2026-07-29 09:18:43",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"세종충남대병원",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX033319, FX033320",sn:"FX033319",wo:"3510709"},
+{dt:"2026-07-29 09:18:43",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"세종충남대병원",typ:"PM2",dev:"Artis physio",fault:"n/a",mode:"n/a",note:"FX033319, FX033320",sn:"FX033320",wo:"3520692"},
+{dt:"2026-07-29 09:20:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"세종충남대병원",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n 27325, 27168, 27347, AK061214",sn:"27325",wo:"3580490"},
+{dt:"2026-07-29 09:20:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"세종충남대병원",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n 27325, 27168, 27347, AK061214",sn:"27168",wo:"3580489"},
+{dt:"2026-07-29 09:20:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"세종충남대병원",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n 27325, 27168, 27347, AK061214",sn:"27347",wo:"3580491"},
+{dt:"2026-07-29 09:20:37",sender:"MnH 신상학 과장",acc:"신상학",time:"n/a",acct:"세종충남대병원",typ:"base kit PM",dev:"ak98",fault:"n/a",mode:"n/a",note:"s/n 27325, 27168, 27347, AK061214",sn:"AK061214",wo:"3580492"},
+{dt:"2026-07-31 10:55:20",sender:"윤성효부장님",acc:"윤성효",time:"07:00",acct:"서연석내과",typ:"Repair",dev:"AK98",fault:"# Internal leak",mode:"setup",note:"AK055668",sn:"AK055668",wo:"3781055"},
+{dt:"2026-07-31 10:57:42",sender:"윤성효부장님",acc:"윤성효",time:"08:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 129 027",mode:"setup",note:"28495",sn:"28495",wo:"3781061"},
+{dt:"2026-07-31 10:59:07",sender:"윤성효부장님",acc:"윤성효",time:"n/a",acct:"충북대병원",typ:"Fch",dev:"CWP66",fault:"Customer requested Filter(5micro)replacement",mode:"n/a",note:"s/n: 600793",sn:"600793",wo:"3781063"},
+{dt:"2026-07-31 17:11:42",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"효성병원",typ:"Repair",dev:"AK98",fault:"# 607 error",mode:"Disinfection",note:"AK078588",sn:"AK078588",wo:"3781575"},
+{dt:"2026-08-01 15:38:29",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 060 021",mode:"setup",note:"28767",sn:"28767"},
+{dt:"2026-08-01 16:26:28",sender:"윤성효부장님",acc:"윤성효",time:"14:00",acct:"충북대병원",typ:"Repair",dev:"AK98",fault:"# 0511 088 066 027",mode:"setup",note:"28455",sn:"28455"},
 ];
 
 // Auto-normalize: AK98 장비의 PM은 Base Kit PM으로 처리
@@ -1199,6 +1358,105 @@ WO.forEach(function(w){
     w.typ = 'Base Kit PM';
   }
 });
+
+// ── 접수자 resolution ──────────────────────────────────────────────
+// Rows registered from 최해림's WO reply alone carry no 접수자. Where the 거래처
+// appears in the Customer-tab ownership list we attribute the WO to that owner.
+// w.acc itself is left untouched so the detail panel still shows the source value.
+// Same 거래처 written differently in the chat log vs the ownership list.
+var ACCT_ALIAS={
+  '천안충무병원':'충무병원',
+  '서울연합내과':'부여서울연합내과'
+};
+
+// 거래처 that appear in no ownership list and have no 접수자 anywhere — assigned manually.
+var ACCT_MANUAL={
+  '참편한365내과의원':'차병철',
+  '대전선병원':'차병철',
+  '세종충남대학교병원':'신상학'
+};
+
+// 거래처 whose unassigned rows are hand-split across several 접수자 in a stated
+// ratio (matches the mix already seen elsewhere for that same account), rather
+// than all going to one winner. Rows are ordered by date, then the sequence
+// below is applied 1:1 down that list.
+var ACCT_SPLIT={
+  '임채남내과': ['윤성효','윤성효','윤성효','윤성효','윤성효','신상학','신상학','신상학','신상학','차병철','차병철']
+};
+
+var SPLIT_ASSIGN=null;
+function splitAssignMap(){
+  if(SPLIT_ASSIGN) return SPLIT_ASSIGN;
+  SPLIT_ASSIGN=new Map();
+  Object.keys(ACCT_SPLIT).forEach(function(acct){
+    var seq=ACCT_SPLIT[acct];
+    var rows=WO.filter(function(w){
+      return !((w.acc||'').trim()) && (w.acct||'').trim()===acct;
+    });
+    rows.sort(function(a,b){ return a.dt<b.dt?-1:a.dt>b.dt?1:0; });
+    rows.forEach(function(w,i){ SPLIT_ASSIGN.set(w, seq[i % seq.length]); });
+  });
+  return SPLIT_ASSIGN;
+}
+
+// Built lazily: CUST_DATA is declared further down this script.
+var ACCT_OWNER=null;
+function acctOwnerMap(){
+  if(ACCT_OWNER) return ACCT_OWNER;
+  ACCT_OWNER={};
+  if(typeof CUST_DATA!=='undefined' && CUST_DATA){
+    CUST_DATA.forEach(function(m){
+      m.rows.forEach(function(r){ ACCT_OWNER[r.n]=m.acc; });
+    });
+  }
+  return ACCT_OWNER;
+}
+
+// Fallback: infer the owner from other WOs of the same 거래처 that do carry an
+// 접수자 — most frequent wins, ties broken by the closest record in time.
+var ACCT_INFER=null;
+function acctInferMap(){
+  if(ACCT_INFER) return ACCT_INFER;
+  var tally={};
+  WO.forEach(function(w){
+    var a=(w.acc||'').trim(), acct=(w.acct||'').trim();
+    if(!a||!acct) return;
+    if(!tally[acct]) tally[acct]={};
+    if(!tally[acct][a]) tally[acct][a]={n:0, dts:[]};
+    tally[acct][a].n++; tally[acct][a].dts.push(w.dt);
+  });
+  ACCT_INFER={};
+  Object.keys(tally).forEach(function(acct){
+    ACCT_INFER[acct]=function(dt){
+      var names=Object.keys(tally[acct]);
+      var max=Math.max.apply(null,names.map(function(k){return tally[acct][k].n;}));
+      var top=names.filter(function(k){return tally[acct][k].n===max;});
+      if(top.length===1) return top[0];
+      // tie — pick whoever has the temporally nearest record
+      var best=null,bestGap=Infinity;
+      top.forEach(function(k){
+        tally[acct][k].dts.forEach(function(d){
+          var gap=Math.abs(new Date(d.replace(' ','T'))-new Date(dt.replace(' ','T')));
+          if(gap<bestGap){bestGap=gap;best=k;}
+        });
+      });
+      return best;
+    };
+  });
+  return ACCT_INFER;
+}
+
+function resolveAcc(w){
+  var a=(w.acc||'').trim();
+  if(a) return a;
+  var acct=(w.acct||'').trim();
+  if(ACCT_MANUAL[acct]) return ACCT_MANUAL[acct];
+  if(ACCT_SPLIT[acct]) return splitAssignMap().get(w) || '미입력';
+  var canon=ACCT_ALIAS[acct]||acct;
+  if(acctOwnerMap()[canon]) return acctOwnerMap()[canon];
+  var infer=acctInferMap()[acct];
+  return (infer && infer(w.dt)) || '미입력';
+}
 
 var SQ='', AF='all', TF='all', MF='all', OS={}, CUR_PAGE=1, PAGE_SIZE=20, FILTERED_LIST=[];
 
@@ -1264,7 +1522,7 @@ function renderPage(){
   var start = (CUR_PAGE-1)*PAGE_SIZE;
   var pageItems = list.slice(start, start+PAGE_SIZE);
 
-  var filterActive = SQ||AF!=='all'||TF!=='all'||MF!=='all';
+  var filterActive = SQ||AF!=='all'||TF!=='all'||MF!=='all'||YF!=='all';
   sbar.innerHTML = filterActive
     ? '<b>'+total+'</b>건 검색됨 (전체 '+WO.length+'건) · '+CUR_PAGE+'/'+totalPages+'페이지'
     : '전체 <b>'+WO.length+'</b>건 · '+CUR_PAGE+'/'+totalPages+'페이지';
@@ -1285,7 +1543,7 @@ function renderPage(){
             accBadge(w.acc)+
             typeBadge(w.typ)+
             '<span class="badge b-date">'+esc(fmtDate(w.dt))+' '+esc(fmtTime(w.dt))+'</span>'+
-            (hasSerial ? '<span class="badge" style="background:var(--euca-light);color:var(--pine);font-family:monospace;">'+esc(w.sn)+'</span>' : '')+
+            (hasSerial ? '<span class="badge b-sn">'+esc(w.sn)+'</span>' : '')+
           '</div>'+
         '</div>'+
         '<div class="chev'+(isOpen?' open':'')+'" id="chev_'+key+'">▾</div>'+
@@ -1301,7 +1559,7 @@ function renderPage(){
           (w.mode&&w.mode!=='n/a' ? '<div class="drow"><span class="dlbl">고장모드</span><span class="dval">'+esc(w.mode)+'</span></div>' : '')+
           (w.note&&w.note!=='n/a' ? '<div class="drow"><span class="dlbl">전달사항</span><span class="dval">'+hi(w.note,ws)+'</span></div>' : '')+
           (hasSerial ? '<div class="divider-arrow"><span>Serial No.</span></div><div class="drow"><span class="dval highlight">'+hi(w.sn,ws)+'</span></div>' : '')+
-          (w.wo ? '<div class="divider-arrow"><span>WO No.</span></div><div class="drow"><span class="dval highlight" style="font-size:12px;word-break:break-all;">'+esc(w.wo)+'</span></div>' : '')+
+          (w.wo ? '<div class="divider-arrow"><span>WO No.</span></div><div class="drow"><span class="dval highlight" style="font-size:12px;word-break:break-all;">'+hi(w.wo,ws)+'</span></div>' : '')+
         '</div>'+
       '</div>'+
     '</div>';
@@ -1355,7 +1613,7 @@ function go(){
   var list = WO.slice().reverse(); // newest first
   if(YF!=='all' && MF==='all') list=list.filter(function(w){ return w.dt.substring(0,4)===YF; });
   if(MF!=='all') list=list.filter(function(w){ return w.dt.substring(0,7)===MF; });
-  if(AF!=='all') list=list.filter(function(w){ return w.acc===AF; });
+  if(AF!=='all') list=list.filter(function(w){ return resolveAcc(w)===AF; });
   if(TF!=='all'){
     list=list.filter(function(w){
       var t=(w.typ||'').toLowerCase();
@@ -1370,7 +1628,7 @@ function go(){
   }
   if(ws.length){
     list=list.filter(function(w){
-      var h=[w.acct,w.dev,w.fault,w.note,w.sn,w.acc,w.typ].join(' ').toLowerCase();
+      var h=[w.acct,w.dev,w.fault,w.note,w.sn,w.acc,w.typ,w.wo].join(' ').toLowerCase();
       return ws.every(function(ww){ return h.indexOf(ww)>=0; });
     });
   }
@@ -1486,6 +1744,114 @@ function initCanvas(id, w, h){
   return ctx;
 }
 
+// Shared frame: faded total bars + month/year axis. Returns the geometry so
+// callers can overlay dot-lines on the same scale.
+function drawTrendFrame(ctx, months, moData, W, H, opt){
+  opt = opt || {};
+  var PL=opt.padLeft||38, PR=opt.padRight||46, PT=28, PB=56;
+  var cW=W-PL-PR, cH=H-PT-PB;
+  var maxV=Math.max.apply(null,months.map(function(m){return moData[m].total;}))||1;
+  var niceMax=Math.ceil(maxV/5)*5||5;
+
+  // grid
+  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=0.8;
+  for(var g=0;g<=4;g++){
+    var gy=PT+cH*(1-g/4);
+    ctx.beginPath(); ctx.moveTo(PL,gy); ctx.lineTo(PL+cW,gy); ctx.stroke();
+    ctx.fillStyle='#9B879A'; ctx.font='11px "Noto Sans KR",Inter,sans-serif'; ctx.textAlign='right';
+    ctx.fillText(Math.round(niceMax*g/4),PL-4,gy+4);
+  }
+
+  var bW=cW/months.length, bPad=Math.max(bW*0.2,4), abW=bW-bPad*2;
+
+  // faint divider on each year boundary — drawn before the bars so it sits behind
+  ctx.save();
+  ctx.strokeStyle='rgba(114,37,107,0.20)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  for(var b=1;b<months.length;b++){
+    if(months[b].substring(0,4)===months[b-1].substring(0,4)) continue;
+    var bx=Math.round(PL+b*bW)+0.5;   // half-pixel keeps the 1px line crisp
+    ctx.beginPath(); ctx.moveTo(bx,PT); ctx.lineTo(bx,PT+cH+48); ctx.stroke();
+  }
+  ctx.restore();
+
+  var prevYear='';
+  months.forEach(function(ym,i){
+    var val=moData[ym].total;
+    var bH=(val/niceMax)*cH;
+    var x=PL+i*bW+bPad;
+    var y=PT+cH-bH;
+    var parts=ym.split('-');
+
+    // bar — muted so the overlaid dot-line reads as the foreground
+    ctx.fillStyle=opt.barFill||'rgba(114,37,107,0.16)';
+    ctx.fillRect(x,y,abW,bH);
+
+    // value label (omitted where the dot-line owns the reading) — sized to match
+    // the count numbers everywhere else on this page (--num-cnt-size: 12px)
+    if(!opt.hideBarValues){
+      ctx.textAlign='center';
+      ctx.fillStyle='#72256B'; ctx.font='700 12px "Noto Sans KR",Inter,sans-serif';
+      ctx.fillText(val,x+abW/2,y-7);
+    }
+
+    // month label
+    ctx.textAlign='center';
+    ctx.fillStyle='#9B879A'; ctx.font='12.6px "Noto Sans KR",Inter,sans-serif';
+    ctx.fillText(parts[1]+'월',x+abW/2,PT+cH+20);
+
+    // year label (on change)
+    if(parts[0]!==prevYear){
+      prevYear=parts[0];
+      ctx.fillStyle='rgba(114,37,107,0.75)'; ctx.font='700 11.2px "Noto Sans KR",Inter,sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText(parts[0],x,PT+cH+42);
+    }
+  });
+
+  return {PL:PL,PR:PR,PT:PT,PB:PB,cW:cW,cH:cH,bW:bW,bPad:bPad,abW:abW,niceMax:niceMax};
+}
+
+// Line with white-filled dot markers, drawn on the frame's scale.
+function drawDotLine(ctx, vals, gm, color, opt){
+  opt = opt || {};
+  var pts=vals.map(function(v,i){
+    return {x:gm.PL+i*gm.bW+gm.bW/2, y:gm.PT+gm.cH-(v/gm.niceMax)*gm.cH, v:v};
+  });
+  ctx.strokeStyle=color; ctx.lineWidth=opt.lineWidth||1.7;
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.beginPath();
+  pts.forEach(function(p,i){ i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y); });
+  ctx.stroke();
+  var r=opt.dotR||3.15;
+  pts.forEach(function(p){
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle='#fff'; ctx.fill();
+    ctx.strokeStyle=color; ctx.lineWidth=opt.dotW||1.55; ctx.stroke();
+  });
+  return pts;
+}
+
+// Dashed mean line + value pill pinned to the right edge.
+function drawAvgLine(ctx, avg, gm, W, color){
+  var y=gm.PT+gm.cH-(avg/gm.niceMax)*gm.cH;
+  ctx.save();
+  ctx.setLineDash([6,4]);
+  ctx.strokeStyle=color; ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(gm.PL,y); ctx.lineTo(gm.PL+gm.cW,y); ctx.stroke();
+  ctx.restore();
+
+  var txt=avg.toFixed(1);
+  ctx.font='700 15px "Noto Sans KR",Inter,sans-serif';
+  var tw=ctx.measureText(txt).width, pw=tw+12, ph=19;
+  var px=Math.min(gm.PL+gm.cW+4, W-pw-2), py=y-ph/2;
+  ctx.fillStyle=color;
+  if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(px,py,pw,ph,5); ctx.fill(); }
+  else ctx.fillRect(px,py,pw,ph);
+  ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(txt,px+pw/2,py+ph/2+0.5);
+  ctx.textBaseline='alphabetic';
+}
+
 function drawTrendChart(moData){
   var months=Object.keys(moData).sort();
   var wrap=document.getElementById('trendWrap');
@@ -1496,59 +1862,96 @@ function drawTrendChart(moData){
   var ctx=initCanvas('trendChart',W,H);
   if(!ctx) return;
 
-  var PL=38,PR=10,PT=28,PB=56;
-  var cW=W-PL-PR, cH=H-PT-PB;
-  var maxV=Math.max.apply(null,months.map(function(m){return moData[m].total;}))||1;
-  var niceMax=Math.ceil(maxV/5)*5||5;
+  var gm=drawTrendFrame(ctx, months, moData, W, H);
+  var totals=months.map(function(m){return moData[m].total;});
 
-  // grid
-  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=0.8;
-  for(var g=0;g<=4;g++){
-    var gy=PT+cH*(1-g/4);
-    ctx.beginPath(); ctx.moveTo(PL,gy); ctx.lineTo(PL+cW,gy); ctx.stroke();
-    ctx.fillStyle='#bbb'; ctx.font='11px Arial'; ctx.textAlign='right';
-    ctx.fillText(Math.round(niceMax*g/4),PL-4,gy+4);
-  }
+  // mean of the monthly totals — pinned to the line's right end, and mirrored
+  // into the legend since the chart scrolls horizontally on narrow screens
+  var avg=totals.reduce(function(a,b){return a+b;},0)/(totals.length||1);
+  drawAvgLine(ctx, avg, gm, W, '#B07D2E');
+  var avgEl=document.getElementById('trendAvgVal');
+  if(avgEl) avgEl.textContent=avg.toFixed(1);
 
-  var bW=cW/months.length, bPad=Math.max(bW*0.2,4), abW=bW-bPad*2;
-  var prevYear='';
-  months.forEach(function(ym,i){
-    var val=moData[ym].total;
-    var bH=(val/niceMax)*cH;
-    var x=PL+i*bW+bPad;
-    var y=PT+cH-bH;
-    var parts=ym.split('-');
-
-    // bar
-    ctx.fillStyle='rgba(114,37,107,0.82)';
-    ctx.fillRect(x,y,abW,bH);
-
-    // value
-    ctx.textAlign='center';
-    if(bH>22){
-      ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.font='bold 18px Arial';
-      ctx.fillText(val,x+abW/2,y+16);
-    } else {
-      ctx.fillStyle='#72256B'; ctx.font='bold 18px Arial';
-      ctx.fillText(val,x+abW/2,y-5);
-    }
-
-    // month label
-    ctx.fillStyle='#999'; ctx.font='18px Arial';
-    ctx.fillText(parts[1]+'월',x+abW/2,PT+cH+20);
-
-    // year label (on change)
-    if(parts[0]!==prevYear){
-      prevYear=parts[0];
-      ctx.fillStyle='rgba(114,37,107,0.75)'; ctx.font='bold 16px Arial';
-      ctx.textAlign='left';
-      ctx.fillText(parts[0],x,PT+cH+42);
-    }
-  });
+  drawDotLine(ctx, totals, gm, '#72256B');
 
   // axes
   ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(gm.PL,gm.PT); ctx.lineTo(gm.PL,gm.PT+gm.cH);
+  ctx.lineTo(gm.PL+gm.cW,gm.PT+gm.cH); ctx.stroke();
+}
+
+// Per-접수자 dot-lines over the same faded total bars.
+var ACC_SERIES=[
+  {k:'윤성효', c:'#72256B'},
+  {k:'신상학', c:'#105742'},
+  {k:'차병철', c:'#6CA07A'},
+  {k:'미입력', c:'#9B879A'}
+];
+
+// Label column is wide enough for the series names, and the chart uses the same
+// left padding so the table's month columns line up with the plotted points.
+var ACC_TBL_LBL_W=86;
+
+function drawAccTrendChart(moData){
+  var months=Object.keys(moData).sort();
+  var wrap=document.getElementById('accTrendWrap');
+  if(!wrap) return;
+  var colW=Math.max(52, Math.floor(((wrap.offsetWidth||320)-ACC_TBL_LBL_W)/months.length));
+  var W=Math.max(ACC_TBL_LBL_W+colW*months.length, wrap.offsetWidth||320);
+  var H=200;
+  var ctx=initCanvas('accTrendChart',W,H);
+  if(!ctx) return;
+
+  var gm=drawTrendFrame(ctx, months, moData, W, H,
+    {hideBarValues:true, padLeft:ACC_TBL_LBL_W, padRight:10});
+
+  var drawn=[];
+  ACC_SERIES.forEach(function(s){
+    var vals=months.map(function(m){ return moData[m].acc[s.k]||0; });
+    if(vals.every(function(v){return v===0;})) return;   // skip absent series
+    drawDotLine(ctx, vals, gm, s.c, {lineWidth:1.55, dotR:2.65, dotW:1.4});
+    drawn.push({k:s.k, c:s.c, vals:vals});
+  });
+
+  ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(gm.PL,gm.PT); ctx.lineTo(gm.PL,gm.PT+gm.cH);
+  ctx.lineTo(gm.PL+gm.cW,gm.PT+gm.cH); ctx.stroke();
+
+  buildAccTrendTable(months, moData, drawn, gm, W);
+}
+
+// Number table under the chart — column widths mirror the chart geometry, and it
+// shares the chart's scroll container so the two stay aligned while scrolling.
+function buildAccTrendTable(months, moData, drawn, gm, W){
+  var el=document.getElementById('accTrendTable');
+  if(!el) return;
+
+  var cols='<colgroup><col style="width:'+gm.PL+'px">'+
+    months.map(function(){ return '<col style="width:'+gm.bW+'px">'; }).join('')+
+    '<col style="width:'+gm.PR+'px"></colgroup>';
+
+  var totals=months.map(function(m){return moData[m].total;});
+
+  // pctRow: when given, each cell shows v's share of that month's total beneath the count.
+  function row(cls, swatch, name, vals, color, pctRow){
+    return '<tr class="'+cls+'">'+
+      '<td class="tt-lbl"><span class="tt-lbl-in">'+swatch+'<span class="tt-name"'+
+        (color?' style="color:'+color+'"':'')+'>'+esc(name)+'</span></span></td>'+
+      vals.map(function(v,i){
+        if(v===0) return '<td class="tt-z">-</td>';
+        var pct = pctRow ? '<div class="tt-pct">'+((totals[i]?v/totals[i]*100:0).toFixed(1))+'%</div>' : '';
+        return '<td><div class="tt-val">'+v+'</div>'+pct+'</td>';
+      }).join('')+'<td></td></tr>';
+  }
+
+  var html='<table class="trend-tbl" style="width:'+W+'px">'+cols+'<tbody>';
+  html+=row('tt-total','<span class="tt-sw tt-sw-bar"></span>','월 총계', totals);
+  drawn.forEach(function(s){
+    html+=row('', '<span class="tt-sw tt-sw-line" style="--c:'+s.c+'"></span>',
+              s.k, s.vals, s.c, true);
+  });
+  html+='</tbody></table>';
+  el.innerHTML=html;
 }
 
 function drawDonut(id, dataMap, colorMap){
@@ -1569,7 +1972,7 @@ function drawDonut(id, dataMap, colorMap){
     ctx.arc(cx,cy,outerR,startA,startA+angle);
     ctx.arc(cx,cy,innerR,startA+angle,startA,true);
     ctx.closePath();
-    ctx.fillStyle=colorMap[k]||'#A1A1AA';
+    ctx.fillStyle=colorMap[k]||'#9B879A';
     ctx.fill();
     startA+=angle+gap;
   });
@@ -1580,9 +1983,9 @@ function drawDonut(id, dataMap, colorMap){
 
   // center text
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle='#72256B'; ctx.font='bold 16px "Arial Black",Arial';
+  ctx.fillStyle='#72256B'; ctx.font='800 17px "Noto Sans KR",Inter,sans-serif';
   ctx.fillText(total,cx,cy-6);
-  ctx.fillStyle='#aaa'; ctx.font='9px Arial';
+  ctx.fillStyle='#9B879A'; ctx.font='10px "Noto Sans KR",Inter,sans-serif';
   ctx.fillText('건',cx,cy+9);
 }
 
@@ -1594,7 +1997,7 @@ function buildBars(dataMap, total, colors, nameWidth){
     var cnt = dataMap[k];
     var pct = (cnt/total*100).toFixed(1);
     var barW = Math.round(cnt/maxVal*100);
-    var col = Array.isArray(colors) ? colors[i%colors.length] : (colors[k]||'#A1A1AA');
+    var col = Array.isArray(colors) ? colors[i%colors.length] : (colors[k]||'#9B879A');
     html += '<div class="mo-stat-row">'+
       '<span class="mo-stat-name" style="min-width:'+(nameWidth||70)+'px;">'+esc(k)+'</span>'+
       '<div class="mo-bar-wrap"><div class="mo-bar" style="width:'+barW+'%;background:'+col+'"><span>'+cnt+'</span></div></div>'+
@@ -1608,8 +2011,8 @@ function buildBars(dataMap, total, colors, nameWidth){
 function renderStats(){
   var el=document.getElementById('statsPanelInner');
   var total=WO.length;
-  var colors=['#72256B','#105742','#6CA07A','#D4700A'];
-  var typColors={'Repair':'#C0392B','FCH':'#D4700A','PM2':'#0a5c3a','Base Kit PM':'#5a1f70','PM':'#105742','Installation':'#6CA07A','기타':'#A1A1AA'};
+  var colors=['#72256B','#105742','#6CA07A','#B07D2E'];
+  var typColors={'Repair':'#AE4048','FCH':'#B07D2E','PM2':'#2A7358','Base Kit PM':'#8E4285','PM':'#105742','Installation':'#6CA07A','기타':'#9B879A'};
 
   function normType(t){
     var tl=(t||'').toLowerCase();
@@ -1624,7 +2027,7 @@ function renderStats(){
 
   var accMap={}, typMap={}, moData={};
   WO.forEach(function(w){
-    var a=w.acc||'미입력';
+    var a=resolveAcc(w);
     accMap[a]=(accMap[a]||0)+1;
     var k=normType(w.typ);
     typMap[k]=(typMap[k]||0)+1;
@@ -1653,6 +2056,20 @@ function renderStats(){
   html += '<div class="chart-section"><div class="chart-hdr">'+icoTrend+'월별 WO 추이</div>'+
     '<div class="chart-card" style="padding:14px 12px 10px;">'+
       '<div class="chart-scroll" id="trendWrap"><canvas id="trendChart"></canvas></div>'+
+      '<div class="chart-legend">'+
+        '<span class="cl-item"><span class="cl-line" style="background:#72256B"></span>월별 WO</span>'+
+        '<span class="cl-item"><span class="cl-line dash" style="background:#B07D2E"></span>평균 <b id="trendAvgVal" style="color:#B07D2E;font-weight:800;">–</b></span>'+
+      '</div>'+
+    '</div></div>';
+
+  // ── Monthly Trend by 접수자 ──
+  var icoAcc='<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+  html += '<div class="chart-section"><div class="chart-hdr">'+icoAcc+'접수자별 월 추이</div>'+
+    '<div class="chart-card" style="padding:14px 12px 10px;">'+
+      '<div class="chart-scroll" id="accTrendWrap">'+
+        '<canvas id="accTrendChart"></canvas>'+
+        '<div id="accTrendTable"></div>'+
+      '</div>'+
     '</div></div>';
 
   // ── Donut Charts ──
@@ -1662,10 +2079,14 @@ function renderStats(){
       .sort(function(a,b){return dataMap[b]-dataMap[a];});
     var tot=keys.reduce(function(s,k){return s+dataMap[k];},0);
     return keys.map(function(k){
+      var pct = tot ? (dataMap[k]/tot*100).toFixed(1) : '0.0';
       return '<div class="donut-leg-row">'+
-        '<div class="donut-leg-dot" style="background:'+(colorMap[k]||'#A1A1AA')+'"></div>'+
+        '<div class="donut-leg-dot" style="background:'+(colorMap[k]||'#9B879A')+'"></div>'+
         '<span class="donut-leg-name">'+esc(k)+'</span>'+
-        '<span class="donut-leg-cnt">'+dataMap[k]+'</span>'+
+        '<span class="donut-leg-nums">'+
+          '<span class="donut-leg-cnt">'+dataMap[k]+'</span>'+
+          '<span class="donut-leg-pct">'+pct+'%</span>'+
+        '</span>'+
       '</div>';
     }).join('');
   }
@@ -1679,7 +2100,7 @@ function renderStats(){
     '<div class="donut-card">'+
       '<div class="donut-title">접수자</div>'+
       '<canvas id="accDonut" style="display:block;margin:0 auto;"></canvas>'+
-      '<div class="donut-legend">'+makeLegend(accMap,{'윤성효':'#72256B','신상학':'#105742','차병철':'#6CA07A','미입력':'#A1A1AA'})+'</div>'+
+      '<div class="donut-legend">'+makeLegend(accMap,{'윤성효':'#72256B','신상학':'#105742','차병철':'#6CA07A','미입력':'#9B879A'})+'</div>'+
     '</div>'+
   '</div>';
 
@@ -1737,8 +2158,11 @@ function renderStats(){
   // Draw charts after DOM insertion
   requestAnimationFrame(function(){
     drawTrendChart(moData);
+    // the number table below the chart doubles as this chart's legend
+    drawAccTrendChart(moData);
+
     drawDonut('typeDonut', typMap, typColors);
-    var accColors={'윤성효':'#72256B','신상학':'#105742','차병철':'#6CA07A','미입력':'#A1A1AA'};
+    var accColors={'윤성효':'#72256B','신상학':'#105742','차병철':'#6CA07A','미입력':'#9B879A'};
     drawDonut('accDonut', accMap, accColors);
   });
 }
@@ -1747,7 +2171,7 @@ function renderStats(){
 // Columns: [AK98, PHOENIX, Artis Physio, Artis Physio+, PRISMAFlex, PrisMax, Prisma Comfort, TherMax, PRISMAFlo, CWP, WRO300H, WRO300]
 var COLS=['AK98','PHOENIX','Artis Physio','Artis Physio+','PRISMAFlex','PrisMax','Prisma Comfort','TherMax','PRISMAFlo','CWP','WRO300H','WRO300'];
 var CUST_DATA=[
-  { acc:'윤성효', color:'#6CA07A',
+  { acc:'윤성효', color:'#105742',
     rows:[
       {n:'엄재호내과',                  v:[33,0, 0,0,0,0, 0,0,0,1,0,0], ec:false, t:34},
       {n:'충북대병원',                  v:[24,0,11,0,9,4,12,0,1,2,3,0], ec:false, t:66},
@@ -1788,13 +2212,16 @@ function renderCustomer(){
 
   var html='';
 
-  // KPI strip
+  // KPI strip — WO counts are stated on the Except Warmer basis (ewT), matching
+  // the "Except Warmer" row of the table below; 거래처 is a plain account count.
   html+='<div class="cust-kpi">';
   CUST_DATA.forEach(function(m){
-    html+='<div class="ck"><div class="ck-v" style="color:'+m.color+'">'+m.subT+'</div><div class="ck-l">'+esc(m.acc)+'</div></div>';
+    html+='<div class="ck"><div class="ck-v" style="color:'+m.color+'">'+m.ewT+'</div>'+
+          '<div class="ck-l">'+esc(m.acc)+'</div><div class="ck-sub">Except Warmer</div></div>';
   });
-  var grandSubT=0; CUST_DATA.forEach(function(m){ grandSubT+=m.subT; });
-  html+='<div class="ck"><div class="ck-v">'+grandSubT+'</div><div class="ck-l">전체 합계</div></div>';
+  var grandEwT=0; CUST_DATA.forEach(function(m){ grandEwT+=m.ewT; });
+  html+='<div class="ck"><div class="ck-v">'+grandEwT+'</div>'+
+        '<div class="ck-l">전체 합계</div><div class="ck-sub">Except Warmer</div></div>';
   html+='<div class="ck"><div class="ck-v">'+totalAccts+'</div><div class="ck-l">거래처</div></div>';
   html+='</div>';
 
